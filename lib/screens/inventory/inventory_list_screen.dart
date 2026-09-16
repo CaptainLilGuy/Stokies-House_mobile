@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:homeventory/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -48,6 +49,100 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
               onTap: () => context.go('/inventory/add'),
             )
           ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showRestockSheet(BuildContext context, InventoryItem item) async {
+    final qtyCtrl = TextEditingController();
+    final noteCtrl = TextEditingController();
+    bool isSubmitting = false;
+    String? error;
+
+    await showModalBottomSheet(
+      context: context, 
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => Padding(
+          padding: EdgeInsets.only(
+            left: 20, right: 20, top: 20, 
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Restock "${item.name}"', 
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 4),
+                Text('Currently: ${item.quantity} ${item.unit}',
+                  style: const TextStyle(color: Colors.grey, fontSize: 13)),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: qtyCtrl,
+                  autofocus: true,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    labelText: 'Amount to add',
+                    suffixText: item.unit,
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: noteCtrl,
+                  decoration: InputDecoration(
+                    labelText: 'Note (optional)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                if (error != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Text(error!, style: const TextStyle(color: Colors.red, fontSize: 13)),
+                  ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: isSubmitting
+                    ? null
+                    : () async {
+                      final qty = double.tryParse(qtyCtrl.text.trim());
+                      if (qty == null || qty == 0) {
+                        setSheetState(() => error = 'Enter a valid amount');
+                        return;
+                      }
+                      setSheetState(() {
+                        isSubmitting = true;
+                        error = null;
+                      });
+                      try {
+                        await ApiService().restockItem(
+                          item.id, qty,
+                          note: noteCtrl.text.trim()
+                        );
+                        if (ctx.mounted) Navigator.pop(ctx);
+                      } catch (e) {
+                        setSheetState(() {
+                          error =  parseApiError(e);
+                          isSubmitting = false;
+                        });
+                      }
+                    }, 
+              child: isSubmitting 
+                ? const SizedBox(
+                  width: 18, height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                : const Text('Confirm Restock'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
