@@ -43,3 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Android local/machine-specific config
+android/local.properties
+android/.gradle/
+**/android/**/GeneratedPluginRegistrant.*
+
+# Secrets & signing (future-proofing, even if unused yet)
+android/key.properties
+*.jks
+*.keystore
+.env
