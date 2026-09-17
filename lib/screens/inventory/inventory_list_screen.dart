@@ -216,6 +216,7 @@ class _ItemTile extends StatelessWidget {
 
     await showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
@@ -346,6 +347,8 @@ class _ItemTile extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (_) async {
+              await Future.delayed(const Duration(milliseconds: 150));
+              if (!context.mounted) return;
               await _showRestockSheet(context);
               // ignore: use_build_context_synchronously
               context.read<InventoryProvider>().fetchItems();
