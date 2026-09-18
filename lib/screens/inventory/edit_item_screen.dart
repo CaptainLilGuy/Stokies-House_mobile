@@ -134,7 +134,43 @@ class _EditItemScreenState extends State<EditItemScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Edit Item'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/inventory'),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // _sectionLabel();
+            TextField(
+              controller: _nameCtrl,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.inventory_2_outlined),
+              ),
+            ),
+            const SizedBox(height: 20),
 
+            // _SectionLabel();
+            DropdownButtonFormField<String>(
+              initialValue: _unit,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+              items: _units
+              .map((u) => DropdownMenuItem(value: u, child: Text(u)))
+              .toList(), 
+              onChanged: (val) => setState(() => _unit = val!),
+            ),
+            const SizedBox(height: 20),
+            
+          ],
+        ),
+      ),
     );
   }
 }
