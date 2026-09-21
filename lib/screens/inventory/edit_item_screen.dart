@@ -204,7 +204,53 @@ class _EditItemScreenState extends State<EditItemScreen> {
             ),
             const SizedBox(height: 28),
 
-            
+            //_SectionLabel('Auto Decrement (optional)'),
+            SwitchListTile(
+              title: const Text('Enable auto decrement'),
+              controlAffinity: ListTileControlAffinity.leading,
+              value: _autoDecrementEnabled, 
+              onChanged: (val) => setState(() => _autoDecrementEnabled = val),
+            ),
+            if (_autoDecrementEnabled) ...[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        //_SectionLabel('Amount per interval),
+                        TextField(
+                          controller: _autoAmountCtrl,
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          decoration: const InputDecoration(
+                            labelText: 'Amount',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        //_SectionLabel
+                        TextField(
+                          controller: _autoIntervalCtrl,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Every ___ days',
+                            border: OutlineInputBorder(),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            ]
           ],
         ),
       ),
