@@ -146,7 +146,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // _sectionLabel();
+            // _sectionLabel('Item Name'),
             TextField(
               controller: _nameCtrl,
               textCapitalization: TextCapitalization.sentences,
@@ -157,7 +157,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
             ),
             const SizedBox(height: 20),
 
-            // _SectionLabel();
+            // _SectionLabel('Unit'),
             DropdownButtonFormField<String>(
               initialValue: _unit,
               decoration: const InputDecoration(border: OutlineInputBorder()),
@@ -167,6 +167,43 @@ class _EditItemScreenState extends State<EditItemScreen> {
               onChanged: (val) => setState(() => _unit = val!),
             ),
             const SizedBox(height: 20),
+            
+            //_SectionLabel('Expiry Date (Optional)'),
+            InkWell(
+              onTap: _pickExpiry,
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.calendar_today_outlined, size: 20, color: Colors.grey),
+                    const SizedBox(width: 12),
+                    Text(
+                      _expiryDate != null
+                        ? DateFormat('d MMMM yyyy').format(_expiryDate!)
+                        : 'Tap to select a date',
+                      style: TextStyle(
+                        color: _expiryDate != null ? Colors.black87 : Colors.grey,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (_expiryDate != null) 
+                      GestureDetector(
+                        onTap: () => setState(() => _expiryDate = null),
+                        child: const Icon(Icons.clear, size: 18, color: Colors.grey),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 28),
+
             
           ],
         ),
