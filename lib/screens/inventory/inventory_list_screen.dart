@@ -420,7 +420,7 @@ class _ItemTile extends StatelessWidget {
             ],
           ),
           trailing: const Icon(Icons.chevron_left),
-          onTap: () {}, //detail screen nanti
+          onTap: () => context.push('/inventory/edit', extra: item),
         ),
       ),
     );
