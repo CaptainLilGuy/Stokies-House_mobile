@@ -146,7 +146,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // _sectionLabel('Item Name'),
+            _SectionLabel('Item Name'),
             TextField(
               controller: _nameCtrl,
               textCapitalization: TextCapitalization.sentences,
@@ -157,7 +157,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
             ),
             const SizedBox(height: 20),
 
-            // _SectionLabel('Unit'),
+            _SectionLabel('Unit'),
             DropdownButtonFormField<String>(
               initialValue: _unit,
               decoration: const InputDecoration(border: OutlineInputBorder()),
@@ -167,8 +167,20 @@ class _EditItemScreenState extends State<EditItemScreen> {
               onChanged: (val) => setState(() => _unit = val!),
             ),
             const SizedBox(height: 20),
+
+            _SectionLabel('Category'),
+            _isLoadingCategories
+              ? const CircularProgressIndicator()
+              : DropdownButtonFormField<Category>(
+                initialValue: _selectedCategory,
+                isExpanded: true,
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+                items: _categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat.name))).toList(), 
+                onChanged: (val) => setState(() => _selectedCategory = val),
+              ),
+            const SizedBox(height: 20),
             
-            //_SectionLabel('Expiry Date (Optional)'),
+            _SectionLabel('Expiry Date (Optional)'),
             InkWell(
               onTap: _pickExpiry,
               borderRadius: BorderRadius.circular(8),
@@ -204,7 +216,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
             ),
             const SizedBox(height: 28),
 
-            //_SectionLabel('Auto Decrement (optional)'),
+            _SectionLabel('Auto Decrement (optional)'),
             SwitchListTile(
               title: const Text('Enable auto decrement'),
               controlAffinity: ListTileControlAffinity.leading,
@@ -219,7 +231,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        //_SectionLabel('Amount per interval),
+                        _SectionLabel('Amount per Interval'),
                         TextField(
                           controller: _autoAmountCtrl,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -236,7 +248,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        //_SectionLabel
+                        _SectionLabel('Interval durations'),
                         TextField(
                           controller: _autoIntervalCtrl,
                           keyboardType: TextInputType.number,
@@ -249,11 +261,44 @@ class _EditItemScreenState extends State<EditItemScreen> {
                     ),
                   ),
                 ],
-              )
-            ]
+              ),
+            ],
+            const SizedBox(height: 20),
+
+            if (_error != null) 
+              Padding(
+                padding: EdgeInsets.only(bottom: 18),
+                child: Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 13)),
+              ),
+
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _isSubmitting ? null : _submit,
+                icon: _isSubmitting
+                ? const SizedBox(
+                  width: 18, height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                : const Icon(Icons.check),
+                label: Text(_isSubmitting ? 'Saving...' : 'Save Changes'),
+              ),
+            ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  final String text;
+  const _SectionLabel(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(text, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
     );
   }
 }
