@@ -31,6 +31,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
   void _showAddOptions(BuildContext context) {
     showModalBottomSheet(
       context: context, 
+      useRootNavigator: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -208,124 +209,6 @@ class _ItemTile extends StatelessWidget {
   final InventoryItem item;
   const _ItemTile({required this.item});
 
-  Future<void> _showRestockSheet(BuildContext context) async {
-    final qtyCtrl = TextEditingController();
-    final noteCtrl = TextEditingController();
-    bool isSubmitting = false;
-    String? error;
-
-    await showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheetState) => Padding(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 20,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Restock "${item.name}"',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Currently: ${item.quantity} ${item.unit}',
-                style: const TextStyle(color: Colors.grey, fontSize: 13),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: qtyCtrl,
-                autofocus: true,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: InputDecoration(
-                  labelText: 'Amount to add',
-                  suffixText: item.unit,
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: noteCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'Note (optional)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              if (error != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: Text(
-                    error!,
-                    style: const TextStyle(color: Colors.red, fontSize: 13),
-                  ),
-                ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: isSubmitting
-                      ? null
-                      : () async {
-                          final qty = double.tryParse(qtyCtrl.text.trim());
-                          if (qty == null || qty == 0) {
-                            setSheetState(() => error = 'Enter a valid amount');
-                            return;
-                          }
-                          setSheetState(() {
-                            isSubmitting = true;
-                            error = null;
-                          });
-                          try {
-                            await ApiService().restockItem(
-                              item.id,
-                              qty,
-                              note: noteCtrl.text.trim(),
-                            );
-                            if (ctx.mounted) Navigator.pop(ctx);
-                          } catch (e) {
-                            setSheetState(() {
-                              error = parseApiError(e);
-                              isSubmitting = false;
-                            });
-                          }
-                        },
-                  child: isSubmitting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text('Confirm Restock'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-
-    qtyCtrl.dispose();
-    noteCtrl.dispose();
-  }
-
   bool get _isExpiringSoon {
     if (item.expiryDate == null) return false;
     return item.expiryDate!.difference(DateTime.now()).inDays <= 3; 
@@ -347,11 +230,13 @@ class _ItemTile extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (_) async {
-              await Future.delayed(const Duration(milliseconds: 150));
+              final inventoryProvider = context.read<InventoryProvider>();
+
+              await Future.delayed(const Duration(milliseconds: 300));
               if (!context.mounted) return;
-              await _showRestockSheet(context);
-              // ignore: use_build_context_synchronously
-              context.read<InventoryProvider>().fetchItems();
+
+              await _showRestockSheet(context, item);
+              inventoryProvider.fetchItems();
             },
             backgroundColor: Colors.green,
             foregroundColor: Colors.white,
@@ -422,6 +307,128 @@ class _ItemTile extends StatelessWidget {
           trailing: const Icon(Icons.chevron_left),
           onTap: () => context.push('/inventory/edit', extra: item),
         ),
+      ),
+    );
+  }
+}
+
+Future<void> _showRestockSheet(BuildContext context, InventoryItem item) {
+  return showModalBottomSheet(
+    context: context,
+    useRootNavigator: true,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
+    builder: (ctx) => _RestockSheetContent(item: item),
+  );
+}
+
+class _RestockSheetContent extends StatefulWidget {
+  final InventoryItem item;
+  const _RestockSheetContent({required this.item});
+
+  @override
+  State<_RestockSheetContent> createState() => _RestockSheetContentState();
+}
+
+class _RestockSheetContentState extends State<_RestockSheetContent> {
+  final _qtyCtrl = TextEditingController();
+  final _noteCtrl = TextEditingController();
+  bool _isSubmitting = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _qtyCtrl.dispose();
+    _noteCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final qty = double.tryParse(_qtyCtrl.text.trim());
+    if (qty == null || qty == 0) {
+      setState(() => _error = 'Enter a valid amount');
+      return;
+    }
+    setState(() {
+      _isSubmitting = true;
+      _error = null;
+    });
+    try {
+      await ApiService().restockItem(widget.item.id, qty, note: _noteCtrl.text.trim());
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      setState(() {
+        _error = parseApiError(e);
+        _isSubmitting = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20, right: 20, top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Restock "${widget.item.name}"',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () => Navigator.pop(context),
+              visualDensity: VisualDensity.compact,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+          ],
+        ),
+          Text('Currently: ${widget.item.quantity} ${widget.item.unit}',
+              style: const TextStyle(color: Colors.grey, fontSize: 13)),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _qtyCtrl,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              labelText: 'Amount to add',
+              suffixText: widget.item.unit,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _noteCtrl,
+            decoration: const InputDecoration(
+              labelText: 'Note (optional)',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 13)),
+            ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _isSubmitting ? null : _submit,
+              child: _isSubmitting
+                  ? const SizedBox(
+                      width: 18, height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Text('Confirm Restock'),
+            ),
+          ),
+        ],
       ),
     );
   }
