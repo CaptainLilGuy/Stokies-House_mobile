@@ -1,9 +1,11 @@
 import 'package:go_router/go_router.dart';
+import 'package:homeventory/models/inventory_item.dart';
 import 'package:homeventory/screens/inventory/inventory_list_screen.dart';
 import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/inventory/add_item_screen.dart';
+import 'screens/inventory/edit_item_screen.dart';
 import 'screens/expenses/expense_screen.dart';
 import 'screens/household/household_screen.dart';
 import 'screens/inventory/category_management_screen.dart';
@@ -47,6 +49,12 @@ GoRouter createRouter(AuthProvider authProvider) {
         builder: (ctx, state) {
           final data = state.extra as Map<String, dynamic>;
           return ReceiptReviewScreen(parsedData: data);
+        },
+      ),
+      GoRoute(path: '/inventory/edit', 
+              builder: (ctx, state) {
+                final item = state.extra as InventoryItem;
+                return EditItemScreen(item: item);
         },
       ),
     ],
