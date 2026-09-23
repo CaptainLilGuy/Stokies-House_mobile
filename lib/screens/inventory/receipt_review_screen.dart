@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:homeventory/models/category.dart';
+import 'package:homeventory/services/api_service.dart';
 import 'package:intl/intl.dart';
 
 class ReceiptReviewScreen extends StatefulWidget {
@@ -18,6 +21,7 @@ class _ReviewItem {
   final int? matchedItemId;
   final String? matchedItemName;
   bool treatAsRestock; // user's decision, defaults to false (safer default)
+  Category? selectedCategory;
 
   _ReviewItem({
     required String name,
@@ -43,6 +47,23 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
   late TextEditingController _totalController;
   late TextEditingController _dateController;
 
+  List<Category> _categories = [];
+  bool _isLoadingCategories = false;
+  bool _isSubmitting = false;
+  String? _error;
+
+  Future<void> _loadCategories() async {
+    setState(() => _isLoadingCategories = true);
+    try {
+      final cats = await ApiService().getCategories();
+      setState(() => _categories = cats);
+    } catch (e) {
+      setState(() => _error = 'Failed to loa categories');
+    } finally {
+      setState(() => _isLoadingCategories = false);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -66,6 +87,8 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
     _dateController = TextEditingController(
       text: widget.parsedData['date']?.toString() ?? '',
     );
+
+    _loadCategories();
   }
 
   @override
@@ -99,33 +122,90 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
     }
   }
 
-  void _confirmAndContinue() {
-    final cleanedItems = _items.map((item) => {
-      'name': item.nameController.text.trim(),
-      'quantity': int.tryParse(item.qtyController.text.trim()),
-      'unit_price': int.tryParse(item.priceController.text.trim()),
-      'matched_item_id': item.treatAsRestock ? item.matchedItemId : null,
-    }).where((item) => (item['name'] as String).isNotEmpty).toList();
+  Future<void> _confirmAndContinue() async {
+    for (final item in _items) {
+      final name = item.nameController.text.trim();
+      if (name.isEmpty) continue;
+      if (!item.treatAsRestock && item.selectedCategory == null) {
+        setState(() => _error = 'Please select a category for "$name".');
+        return;
+      }
+    }
 
-    final cleanedData = {
-      'items': cleanedItems,
-      'total': int.tryParse(_totalController.text.trim()),
-      'date': _dateController.text.trim(),
-    };
+    setState(() {
+      _isSubmitting = true;
+      _error = null;
+    });
 
-    // TODO (Day 10-12 / Day 12-14): route to inventory pre-fill and/or
-    // expense pre-fill using cleanedData. For now, just confirm it works.
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Confirmed (temp)'),
-        content: SingleChildScrollView(child: Text(cleanedData.toString())),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
-        ],
-      ),
-    );
+    final results = <Map<String, dynamic>>[];
+
+    for (final item in _items) {
+      final name = item.nameController.text.trim();
+      if (name.isEmpty) continue;
+
+      final qty = double.tryParse(item.qtyController.text.trim()) ?? 0;
+
+      try {
+        if (item.treatAsRestock && item.matchedItemId != null) {
+        await ApiService().restockItem(
+          item.matchedItemId!,
+          qty,
+          note: 'From receipt scan',
+        );
+        results.add({'name': name, 'success': true, 'action': 'restocked'});
+        } else {
+          await ApiService().addItem({
+            'name': name,
+            'quantity': qty,
+            'unit': 'pcs',
+            'category': item.selectedCategory!.id,
+          });
+          results.add({'name': name, 'success': true, 'action': 'created'});
+        }
+      } catch (e) {
+        results.add({
+          'name': name,
+          'success': false,
+          'action': item.treatAsRestock ? 'restock' : 'create',
+          'error': parseApiError(e),
+        });
+      }
+    }
+
+    setState(() => _isSubmitting = false);
+
+    if (mounted) {
+      context.push('/inventory/scan-receipt/summary', extra: results);
+    }
   }
+
+  // void _confirmAndContinue() {
+  //   final cleanedItems = _items.map((item) => {
+  //     'name': item.nameController.text.trim(),
+  //     'quantity': int.tryParse(item.qtyController.text.trim()),
+  //     'unit_price': int.tryParse(item.priceController.text.trim()),
+  //     'matched_item_id': item.treatAsRestock ? item.matchedItemId : null,
+  //   }).where((item) => (item['name'] as String).isNotEmpty).toList();
+
+  //   final cleanedData = {
+  //     'items': cleanedItems,
+  //     'total': int.tryParse(_totalController.text.trim()),
+  //     'date': _dateController.text.trim(),
+  //   };
+
+  //   // TODO (Day 10-12 / Day 12-14): route to inventory pre-fill and/or
+  //   // expense pre-fill using cleanedData. For now, just confirm it works.
+  //   showDialog(
+  //     context: context,
+  //     builder: (ctx) => AlertDialog(
+  //       title: const Text('Confirmed (temp)'),
+  //       content: SingleChildScrollView(child: Text(cleanedData.toString())),
+  //       actions: [
+  //         TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -151,9 +231,19 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
           const SizedBox(height: 12),
           _buildDateField('Date', _dateController),
           const SizedBox(height: 24),
+
+          if (_error != null) 
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(_error!, style: TextStyle(color: Colors.red, fontSize: 13)),
+          ),
           ElevatedButton(
-            onPressed: _confirmAndContinue,
-            child: const Text('Confirm'),
+            onPressed: _isSubmitting ? null : _confirmAndContinue,
+            child: _isSubmitting
+              ? const SizedBox(
+                width: 18, height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+              : const Text('Confirm'),
           ),
         ],
       ),
@@ -243,6 +333,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
               ],
             ),
           ),
+
           TextField(
             controller: item.nameController,
             decoration: const InputDecoration(labelText: 'Item name', isDense: true),
@@ -275,6 +366,23 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
               ),
             ],
           ),
+          if (!item.treatAsRestock) ...[
+            const SizedBox(height: 8),
+            _isLoadingCategories
+              ? const LinearProgressIndicator()
+              : DropdownButtonFormField(
+                initialValue: item.selectedCategory,
+                isExpanded: true,
+                hint: const Text('Select Category'),
+                decoration: const InputDecoration(
+                  labelText: 'Category',
+                  isDense: true,
+                  border: OutlineInputBorder(),
+                ),
+                items: _categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat.name))).toList(), 
+                onChanged: (val) => setState(() => item.selectedCategory = val),
+                ),
+          ],
         ],
       ),
     );
