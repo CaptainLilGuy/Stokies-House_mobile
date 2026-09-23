@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:homeventory/services/api_service.dart';
 import 'package:provider/provider.dart';
@@ -397,6 +398,9 @@ class _RestockSheetContentState extends State<_RestockSheetContent> {
           TextField(
             controller: _qtyCtrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+            ],
             decoration: InputDecoration(
               labelText: 'Amount to add',
               suffixText: widget.item.unit,
