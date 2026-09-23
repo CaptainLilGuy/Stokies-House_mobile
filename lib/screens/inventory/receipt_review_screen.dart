@@ -15,15 +15,21 @@ class _ReviewItem {
   final TextEditingController qtyController;
   final TextEditingController priceController;
   bool needsReview;
+  final int? matchedItemId;
+  final String? matchedItemName;
+  bool treatAsRestock; // user's decision, defaults to false (safer default)
 
   _ReviewItem({
     required String name,
     required String quantity,
     required String unitPrice,
     required this.needsReview,
+    this.matchedItemId,
+    this.matchedItemName,
   })  : nameController = TextEditingController(text: name),
         qtyController = TextEditingController(text: quantity),
-        priceController = TextEditingController(text: unitPrice);
+        priceController = TextEditingController(text: unitPrice),
+         treatAsRestock = false;
 
   void dispose() {
     nameController.dispose();
@@ -49,6 +55,8 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
         quantity: map['quantity']?.toString() ?? '',
         unitPrice: map['unit_price']?.toString() ?? '',
         needsReview: map['needs_review'] == true,
+        matchedItemId: map['matched_item_id'] as int?,
+        matchedItemName: map['matched_item_name']?.toString(),
       );
     }).toList();
 
@@ -96,6 +104,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
       'name': item.nameController.text.trim(),
       'quantity': int.tryParse(item.qtyController.text.trim()),
       'unit_price': int.tryParse(item.priceController.text.trim()),
+      'matched_item_id': item.treatAsRestock ? item.matchedItemId : null,
     }).where((item) => (item['name'] as String).isNotEmpty).toList();
 
     final cleanedData = {
@@ -199,6 +208,39 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
                       style: TextStyle(fontSize: 11, color: Colors.orange.shade800)),
                 ],
               ),
+            ),
+          ),
+          if (item.matchedItemId != null)
+          Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: Colors.blue.shade200),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.inventory_2_outlined, size: 16, color: Colors.blue.shade800),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Looks like you already have "${item.matchedItemName}"',
+                    style: TextStyle(fontSize: 12, color: Colors.blue.shade900),
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Restock?', style: TextStyle(fontSize: 12, color: Colors.blue.shade900)),
+                    Switch(
+                      value: item.treatAsRestock,
+                      onChanged: (val) => setState(() => item.treatAsRestock = val),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ],
+                )
+              ],
             ),
           ),
           TextField(
