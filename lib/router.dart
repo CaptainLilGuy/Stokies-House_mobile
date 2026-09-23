@@ -12,6 +12,7 @@ import 'screens/inventory/category_management_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/inventory/receipt_scan_screen.dart';
 import 'screens/inventory/receipt_review_screen.dart';
+import 'screens/inventory/receipt_submit_summary_screen.dart';
 
 GoRouter createRouter(AuthProvider authProvider) {
   return GoRouter(
@@ -51,10 +52,18 @@ GoRouter createRouter(AuthProvider authProvider) {
           return ReceiptReviewScreen(parsedData: data);
         },
       ),
-      GoRoute(path: '/inventory/edit', 
-              builder: (ctx, state) {
-                final item = state.extra as InventoryItem;
-                return EditItemScreen(item: item);
+      GoRoute(
+        path: '/inventory/edit', 
+        builder: (ctx, state) {
+          final item = state.extra as InventoryItem;
+          return EditItemScreen(item: item);
+        },
+      ),
+      GoRoute(
+        path: '/inventory/scan-receipt/summary',
+        builder: (ctx, state) {
+          final results = state.extra as List<Map<String, dynamic>>;
+          return ReceiptSubmitSummaryScreen(results: results);
         },
       ),
     ],
