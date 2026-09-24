@@ -121,7 +121,6 @@ class _AddItemScreenState extends State<AddItemScreen>{
         autoDecrementAmount: autoAmount,
         autoDecrementIntervalDays: autoInterval,
         );
-        print("Quantity: $qty");
         await ApiService().addItem(item.toJson());
 
       //refresh the list and go back
