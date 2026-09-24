@@ -13,6 +13,7 @@ import 'screens/splash_screen.dart';
 import 'screens/inventory/receipt_scan_screen.dart';
 import 'screens/inventory/receipt_review_screen.dart';
 import 'screens/inventory/receipt_submit_summary_screen.dart';
+import 'screens/expenses/add_expense_screen.dart';
 
 GoRouter createRouter(AuthProvider authProvider) {
   return GoRouter(
@@ -66,6 +67,17 @@ GoRouter createRouter(AuthProvider authProvider) {
           return ReceiptSubmitSummaryScreen(results: results);
         },
       ),
+      GoRoute(
+        path: '/inventory/add-expense', 
+        builder: (ctx, state) {
+          final extra =  state.extra as Map<String, dynamic>?;
+          return AddExpenseScreen(
+            initialDescription: extra?['description'] as String?,
+            initialAmount: extra?['amount'] as double?,
+            initialDate: extra?['date'] as DateTime?,
+            source: extra?['source'] as String? ?? 'manual',
+          );
+        }),
     ],
   );
 }
