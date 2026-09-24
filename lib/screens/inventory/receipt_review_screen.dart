@@ -179,34 +179,6 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
     }
   }
 
-  // void _confirmAndContinue() {
-  //   final cleanedItems = _items.map((item) => {
-  //     'name': item.nameController.text.trim(),
-  //     'quantity': int.tryParse(item.qtyController.text.trim()),
-  //     'unit_price': int.tryParse(item.priceController.text.trim()),
-  //     'matched_item_id': item.treatAsRestock ? item.matchedItemId : null,
-  //   }).where((item) => (item['name'] as String).isNotEmpty).toList();
-
-  //   final cleanedData = {
-  //     'items': cleanedItems,
-  //     'total': int.tryParse(_totalController.text.trim()),
-  //     'date': _dateController.text.trim(),
-  //   };
-
-  //   // TODO (Day 10-12 / Day 12-14): route to inventory pre-fill and/or
-  //   // expense pre-fill using cleanedData. For now, just confirm it works.
-  //   showDialog(
-  //     context: context,
-  //     builder: (ctx) => AlertDialog(
-  //       title: const Text('Confirmed (temp)'),
-  //       content: SingleChildScrollView(child: Text(cleanedData.toString())),
-  //       actions: [
-  //         TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
