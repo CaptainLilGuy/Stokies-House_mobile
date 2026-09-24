@@ -108,7 +108,90 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
+    return Scaffold(
+      appBar: AppBar(title: const Text('Add Expense')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Description', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _descCtrl,
+              decoration: const InputDecoration(
+                hintText: 'e.g. Weekly groceries in Indomaret',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 20),
+
+            const Text('Amount', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _amountCtrl,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                prefixText: 'Rp ',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            const Text('Date', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: _pickDate,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.calendar_today_outlined, size: 20, color: Colors.grey),
+                    const SizedBox(width: 12),
+                    Text(DateFormat('d MMMM yyyy').format(_date)),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            const Text('Category (optional)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            _isLoadingCategories
+              ? const LinearProgressIndicator()
+              : DropdownButtonFormField<Category>(
+                initialValue: _selectedCategory,
+                isExpanded: true,
+                hint: const Text('None'),
+                decoration: const InputDecoration(border: OutlineInputBorder()),
+                items: _categories.map((cat) => DropdownMenuItem(value: cat, child:  Text(cat.name))).toList(),
+                onChanged: (val) => setState(() => _selectedCategory = val),
+                ),
+            const SizedBox(height: 20),
+            if (_error != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 18),
+                child: Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 13)),
+                ),
+
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _isSubmitting ? null : _submit, 
+                icon: _isSubmitting
+                  ? const SizedBox(
+                    width: 18, height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Icon(Icons.check),
+                label: Text(_isSubmitting ? 'Saving' : 'Save expense')),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
