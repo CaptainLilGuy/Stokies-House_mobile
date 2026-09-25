@@ -93,12 +93,14 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         'description': _descCtrl.text.trim(),
         'amount': amount,
         'date': DateFormat('yyyy-MM-dd').format(_date),
-        'category': _selectedCategory!.id,
+        'category': _selectedCategory?.id,
         'source': widget.source,
       });
 
       if (mounted) context.go('/expenses');
     } catch (e) {
+      // ignore: avoid_print
+      print('DEBUG expense submit error: $e');
       setState(() => _error = parseApiError(e));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);

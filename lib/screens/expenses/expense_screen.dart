@@ -146,7 +146,7 @@ class _MonthNavigator extends StatelessWidget{
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
           ),
           IconButton(
-            icon: const Icon(Icons.chevron_left),
+            icon: const Icon(Icons.chevron_right),
             onPressed: isCurrentMonth ? null : exp.nextMonth,
             color: isCurrentMonth ? Colors.grey.shade300 : null,
           ),
