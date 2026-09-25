@@ -3,7 +3,14 @@ import 'package:go_router/go_router.dart';
 
 class ReceiptSubmitSummaryScreen extends StatelessWidget {
   final List<Map<String, dynamic>> results;
-  const ReceiptSubmitSummaryScreen({super.key, required this.results});
+  final int? total;
+  final String? date;
+  const ReceiptSubmitSummaryScreen({
+    super.key, 
+    required this.results, 
+    this.total,
+    this.date
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +62,26 @@ class ReceiptSubmitSummaryScreen extends StatelessWidget {
                 ),
               )),
           const SizedBox(height: 24),
+          if (total != null)
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              icon: const Icon(Icons.receipt_long_outlined),
+              label: const Text('Log as Expense'),
+              onPressed: (){
+                DateTime? parsedDate;
+                if (date != null && date!.isNotEmpty) {
+                  parsedDate = _tryParseReceiptDate(date!);
+                }
+                context.push('/inventory/add-expense', extra: {
+                  'description': 'Groceries (from receipt scan)',
+                  'amount': total!.toDouble(),
+                  'date': parsedDate ?? DateTime.now(),
+                  'source': 'ocr',
+                });
+              }),
+          ),
+          const SizedBox(height: 8),
           SizedBox(
             width: double.infinity,
             child: FilledButton(
@@ -65,5 +92,22 @@ class ReceiptSubmitSummaryScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  DateTime? _tryParseReceiptDate(String raw) {
+    final cleaned = raw.replaceAll(RegExp(r'[^\d]'), ' ').trim();
+    final parts = cleaned.split(RegExp(r'\s+'));
+    if (parts.length >= 3) {
+      final day = int.tryParse(parts[0]);
+      final month = int.tryParse(parts[1]);
+      var year = int.tryParse(parts[2]);
+      if (day != null && month != null && year != null){
+        if (year < 100) year += 2000;
+          return DateTime.tryParse(
+            '$year-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}',
+        );
+      }
+    }
+    return null;
   }
 }

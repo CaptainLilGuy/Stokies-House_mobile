@@ -1,36 +1,47 @@
 class Expense {
   final int id;
-  final String title;
+  final String description;
   final double amount;
-  final String category;
   final DateTime date;
-  final String? note;
+  final int? categoryId;
+  final String? categoryName;
+  final int? itemId;
+  final String? itemName;
+  final String source;
 
   Expense({
     required this.id,
-    required this.title,
+    required this.description,
     required this.amount,
-    required this.category,
     required this.date,
-    this.note
+    this.categoryId,
+    this.categoryName,
+    this.itemId,
+    this.itemName,
+    this.source = 'manual',
   });
 
   factory Expense.fromJson(Map<String, dynamic> json) {
     return Expense(
-      id: json['id'], 
-      title: json['title'], 
-      amount: (json['amount'] as num).toDouble(),
-      category: json['category'] ?? 'Other',
-      date: DateTime.parse(json['data']),
-      note: json['note'],
+      id: json['id'],
+      description: json['description'] ?? '',
+      amount: json['amount'] is String
+          ? double.parse(json['amount'])
+          : (json['amount'] as num).toDouble(),
+      date: DateTime.parse(json['date']),
+      categoryId: json['category'],
+      categoryName: json['category_name'],
+      itemId: json['item'],
+      itemName: json['item_name'],
+      source: json['source'] ?? 'manual',
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'title': title,
+    'description': description,
     'amount': amount,
-    'category': category,
     'date': date.toIso8601String().split('T').first,
-    'note': note,
+    'category': categoryId,
+    'source': source,
   };
 }

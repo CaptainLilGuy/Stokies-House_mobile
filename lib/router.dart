@@ -63,8 +63,12 @@ GoRouter createRouter(AuthProvider authProvider) {
       GoRoute(
         path: '/inventory/scan-receipt/summary',
         builder: (ctx, state) {
-          final results = state.extra as List<Map<String, dynamic>>;
-          return ReceiptSubmitSummaryScreen(results: results);
+          final data = state.extra as Map<String, dynamic>;
+          return ReceiptSubmitSummaryScreen(
+            results: data['results'] as List<Map<String, dynamic>>,
+            total: data['total'] as int?,
+            date: data['date'] as String?
+          );
         },
       ),
       GoRoute(

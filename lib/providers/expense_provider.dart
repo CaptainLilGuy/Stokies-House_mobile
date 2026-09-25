@@ -24,12 +24,12 @@ class ExpenseProvider extends ChangeNotifier {
   Map<String, double> get categoryTotals {
     final map = <String, double>{};
     for (final e in monthlyExpenses) {
-      map[e.category] = (map[e.category] ?? 0) + e.amount;
+      final key =e.categoryName ?? 'Uncategorized';
+      map[key] = (map[key] ?? 0) + e.amount;
     }
-
     //sort by aount descending
     return Map.fromEntries(
-      map.entries.toList()..sort((a,b) => b.value.compareTo(a.value))
+      map.entries.toList()..sort((a, b) => b.value.compareTo(a.value))
     );
   }
 

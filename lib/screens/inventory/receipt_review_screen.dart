@@ -175,7 +175,11 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
     setState(() => _isSubmitting = false);
 
     if (mounted) {
-      context.push('/inventory/scan-receipt/summary', extra: results);
+      context.push('/inventory/scan-receipt/summary', extra: {
+        'results': results,
+        'total': int.tryParse(_totalController.text.trim()),
+        'date': _dateController.text.trim()
+      });
     }
   }
 

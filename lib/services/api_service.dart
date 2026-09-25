@@ -141,12 +141,12 @@ class ApiService{
 
   // ─── Expense ─────────────────────────────────────────
   Future<List<dynamic>> getExpenses() async {
-    final res = await _dio.get('/expense/');
+    final res = await _dio.get('/expenses/');
     return res.data;
   }
 
   Future<Map<String, dynamic>> addExpense(Map<String, dynamic> expense) async {
-    final res = await _dio.post('/expense/', data: expense);
+    final res = await _dio.post('/expenses/', data: expense);
     return res.data;
   }
 
@@ -210,5 +210,5 @@ String parseApiError(dynamic error) {
       return 'Connection timed out. Check your server.';
     }
   }
-  return 'Something went wrong on the API';
+  return 'Something went wrong on the API: ';
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:homeventory/services/api_service.dart';
-import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../models/category.dart';
@@ -98,7 +97,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         'source': widget.source,
       });
 
-      if (mounted) context.go('/expense');
+      if (mounted) context.go('/expenses');
     } catch (e) {
       setState(() => _error = parseApiError(e));
     } finally {
@@ -109,7 +108,11 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Expense')),
+      appBar: AppBar(
+        title: const Text('Add Expense'),
+        leading: IconButton(
+          onPressed: () => context.go('/expenses'), 
+          icon: const Icon(Icons.arrow_back))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(

@@ -191,7 +191,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
             ),
             const SizedBox(width: 60),
             IconButton(
-              onPressed: () => context.go('/inventory'),
+              onPressed: () => context.go('/expenses'),
               icon: const Icon(Icons.receipt, size: 30),
             ),
             IconButton(

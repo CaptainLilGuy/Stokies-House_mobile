@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../providers/expense_provider.dart';
@@ -39,6 +40,9 @@ class _ExpenseScreenState extends State<ExpenseScreen>
       appBar: AppBar(
         title: const Text('Expense'),
         centerTitle: false,
+        leading: IconButton(
+          onPressed: () => context.go('/inventory'),
+          icon: const Icon(Icons.arrow_back)),
         bottom: TabBar(
           controller: _tabs,
           tabs: const [
@@ -49,7 +53,21 @@ class _ExpenseScreenState extends State<ExpenseScreen>
       ),
       body: exp.isLoading 
           ? const Center(child: CircularProgressIndicator())
-          : Column(
+          : exp.errorMessage != null
+            ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(exp.errorMessage!, style:const TextStyle(color: Colors.red)),
+                  const SizedBox(height: 12),
+                  FilledButton(
+                    onPressed: () => context.read<ExpenseProvider>().fetchExpenses(), 
+                    child: const Text('Reply'),
+                    ),
+                  ],
+                ),
+             )
+            : Column(
               children: [
                 // Month navigator
                 _MonthNavigator(exp: exp),
@@ -95,7 +113,7 @@ class _ExpenseScreenState extends State<ExpenseScreen>
               ], 
             ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showAddExpenseSheet(context),
+        onPressed: () => context.push('/inventory/add-expense'),
         icon: const Icon(Icons.add),
         label: const Text('Log expense'),
         ),
@@ -165,15 +183,14 @@ class _HistoryTab extends StatelessWidget {
             child: ListTile(
               leading: CircleAvatar(
                 // ignore: deprecated_member_use
-                backgroundColor: _categoryColor(e.category).withOpacity(0.15),
-                child: Icon(_categoryIcon(e.category),
-                    color: _categoryColor(e.category), size: 20),
+                backgroundColor: _categoryColor(e.categoryName).withOpacity(0.15),
+                child: Icon(_categoryIcon(e.categoryName),
+                    color: _categoryColor(e.categoryName), size: 20),
               ),
-              title: Text(e.title, 
+              title: Text(e.description, 
                   style: const TextStyle(fontWeight: FontWeight.w500)),
               subtitle: Text(
-                '${e.category} . ${DateFormat('d MMM').format(e.date)}'
-                '${e.note != null ? '\n${e.note}' : ''}',
+                '${e.categoryName} . ${DateFormat('d MMM').format(e.date)}'
               ),
               trailing: Text(fmt.format(e.amount),
                   style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -244,197 +261,7 @@ class _SummaryTab extends StatelessWidget {
   }
 }
 
-// ─── Add expense bottom sheet ─────────────────────────────
-
-void _showAddExpenseSheet(BuildContext context) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (ctx) => const _AddExpenseSheet()
-  );
-}
-
-class _AddExpenseSheet extends StatefulWidget {
-  const _AddExpenseSheet();
-  
-  @override
-  State<_AddExpenseSheet> createState() => _AddExpenseSheetState();
-}
-
-class _AddExpenseSheetState extends State<_AddExpenseSheet> {
-  final _titleCtrl = TextEditingController();
-  final _amountCtrl = TextEditingController();
-  final _noteCtrl = TextEditingController();
-  String _category = 'Food';
-  DateTime _date = DateTime.now();
-  bool _isSubmitting = false;
-  String? _error;
-  
-  static const _categories = [
-    'Food', 'Beverage', 'Transport', 'Household', 'Health', 'Personal Care', 'Entertainment', 'Other'
-  ];
-  
-  @override
-  void dispose() {
-    _titleCtrl.dispose();
-    _amountCtrl.dispose();
-    _noteCtrl.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    if (_titleCtrl.text.trim().isEmpty) {
-      setState(() => _error = 'Title is required');
-      return;
-    }
-    final amount = double.tryParse(_amountCtrl.text.trim());
-    if (amount == null || amount <= 0) {
-      setState(() => _error = 'Enter a valid amount.');
-      return;
-    }
-
-    setState(() {_isSubmitting = true; _error = null; });
-
-    final expense = Expense(
-      id: 0, 
-      title: _titleCtrl.text.trim(), 
-      amount: amount, 
-      category: _category, 
-      date: _date,
-      note: _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim(),  
-    );
-
-    final success = await context.read<ExpenseProvider>().addExpenses(expense);
-    if (success && mounted) Navigator.pop(context);
-    if (!success && mounted) setState(() {_isSubmitting = false; });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        24, 20, 24, MediaQuery.of(context).viewInsets.bottom + 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          //Handle bar
-          Center(
-            child: Container(
-              width: 40, height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Text('Log expense',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
-
-          TextField(
-            controller: _titleCtrl,
-            textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              labelText: 'Title',
-              hintText: 'e.g. Alfamart groceries',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 14),
-
-          TextField(
-            controller: _amountCtrl,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Amount (Rp)',
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.payment_outlined),
-            ),
-          ),
-          const SizedBox(height: 14),
-
-          //Category chips
-          SizedBox(
-            height: 36,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: _categories.map((cat) {
-                final sel = _category == cat;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ChoiceChip(
-                    label: Text(cat), 
-                    selected: sel,
-                    onSelected: (_) => setState(() => _category = cat),
-                    ),
-                  );
-              }).toList(),
-            ),
-          ),
-          const SizedBox(height: 14),
-
-          //Date picker row
-          InkWell(
-            onTap: () async {
-              final picked = await showDatePicker(
-                context: context, 
-                initialDate: _date,
-                firstDate: DateTime(2020), 
-                lastDate: DateTime.now(),
-              );
-              if (picked != null) setState(() => _date = picked);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade400),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Row(children: [
-                const Icon(Icons.calendar_today_outlined, size: 18, color: Colors.grey),
-                const SizedBox(width: 10),
-                Text(DateFormat('d MMMM yyyy').format(_date)),
-              ]),
-            ),
-          ),
-          const SizedBox(height: 14),
-
-          TextField(
-            controller: _noteCtrl,
-            decoration: const InputDecoration(
-              labelText: 'Note(Optional)',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 8),
-          if (_error != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 13)),
-            ),
-
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: _isSubmitting ? null : _submit,
-              child: _isSubmitting
-                  ? const SizedBox(height: 20, width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Save expense'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-IconData _categoryIcon(String cat) {
+IconData _categoryIcon(String? cat) {
   switch (cat) {
     case 'Food' : return Icons.restaurant_outlined;
     case 'Beverage' : return Icons.local_cafe_outlined;
@@ -447,7 +274,7 @@ IconData _categoryIcon(String cat) {
   }
 }
 
-Color _categoryColor(String cat) {
+Color _categoryColor(String? cat) {
   switch (cat) {
     case 'Food' : return Colors.orange;
     case 'Beverage' : return Colors.blue;
