@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:homeventory/services/api_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -136,6 +137,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             TextField(
               controller: _amountCtrl,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              ],
               decoration: const InputDecoration(
                 prefixText: 'Rp ',
                 border: OutlineInputBorder(),

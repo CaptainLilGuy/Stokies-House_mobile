@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:homeventory/models/category.dart';
 import 'package:homeventory/services/api_service.dart';
@@ -322,6 +323,9 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
                 child: TextField(
                   controller: item.qtyController,
                   decoration: const InputDecoration(labelText: 'Qty', isDense: true),
+                  inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                  ],
                   keyboardType: TextInputType.number,
                   onTap: () => _markReviewed(index)
                 ),
@@ -331,6 +335,9 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
                 flex: 2,
                 child: TextField(
                   controller: item.priceController,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
                   decoration: const InputDecoration(labelText: 'Unit price', isDense: true),
                   keyboardType: TextInputType.number,
                   onTap: () => _markReviewed(index)
@@ -367,6 +374,9 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
   Widget _buildSummaryField(String label, TextEditingController controller) {
     return TextField(
       controller: controller,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+      ],
       decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
     );
   }

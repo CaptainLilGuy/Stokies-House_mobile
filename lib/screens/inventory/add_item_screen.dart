@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:homeventory/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -174,6 +175,9 @@ class _AddItemScreenState extends State<AddItemScreen>{
                   child: TextField(
                     controller: _quantitCtrl,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                    ],
                     decoration: const InputDecoration(
                       hintText: '0',
                       border: OutlineInputBorder(),
