@@ -206,9 +206,19 @@ String parseApiError(dynamic error) {
       if (firstVal is List) return '$firstKey: ${firstVal.join(', ')}';
       return firstVal.toString();
     }
-    if (error.type == DioExceptionType.connectionTimeout) {
-      return 'Connection timed out. Check your server.';
+
+    switch (error.type) {
+      case DioExceptionType.connectionTimeout:
+        return 'Connection timed out. Check your server.';
+      case DioExceptionType.connectionError:
+        return 'Connection error: ${error.message}';
+      case DioExceptionType.receiveTimeout:
+        return 'Server took too long to respond.';
+      case DioExceptionType.badResponse:
+        return 'Server error (${error.response?.statusCode}).';
+      default:
+        return 'Network error: ${error.type} — ${error.message} — underlying: ${error.error}';
     }
   }
-  return 'Something went wrong on the API: ';
+  return 'Non-network error: ${error.runtimeType} — $error';
 }

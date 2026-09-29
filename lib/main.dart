@@ -7,8 +7,11 @@ import 'providers/inventory_provider.dart';
 import 'providers/household_provider.dart';
 import 'services/api_service.dart';
 import 'router.dart';
+import 'constants.dart';
 
 void main() {
+  // ignore: avoid_print
+  print('Using base URL: ${AppConstants.baseUrl}');
   runApp(const HomeventoryApp());
 }
 
