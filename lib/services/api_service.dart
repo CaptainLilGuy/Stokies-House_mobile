@@ -94,12 +94,14 @@ class ApiService{
     await _dio.delete('/inventory/items/$id/');
   }
 
-  Future<void> restockItem(int itemId, double quantityDelta, {String? note}) async {
+  Future<void> restockItem(int itemId, double quantityDelta, 
+  {String? note, int? unitPrice, String source = 'manual'}) async {
     await _dio.post('/inventory/transactions/', data: {
       'item': itemId,
       'change_type': 'restocked',
       'quantity_delta': quantityDelta,
       'source': 'manual',
+      'unit_price': ?unitPrice,
       if (note != null && note.isNotEmpty)'note': note,
     });
   }
