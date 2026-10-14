@@ -145,6 +145,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
       if (name.isEmpty) continue;
 
       final qty = double.tryParse(item.qtyController.text.trim()) ?? 0;
+      final price = int.tryParse(item.priceController.text.trim());
 
       try {
         if (item.treatAsRestock && item.matchedItemId != null) {
@@ -152,6 +153,8 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
           item.matchedItemId!,
           qty,
           note: 'From receipt scan',
+          unitPrice: price,
+          source: 'ocr',
         );
         results.add({'name': name, 'success': true, 'action': 'restocked'});
         } else {
@@ -160,6 +163,8 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
             'quantity': qty,
             'unit': 'pcs',
             'category': item.selectedCategory!.id,
+            'unit_price': ?price,
+            'source': 'ocr',
           });
           results.add({'name': name, 'success': true, 'action': 'created'});
         }
