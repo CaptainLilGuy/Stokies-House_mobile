@@ -18,9 +18,10 @@ class AddItemScreen extends StatefulWidget {
 
 class _AddItemScreenState extends State<AddItemScreen>{
   final _nameCtrl = TextEditingController();
-  final _quantitCtrl = TextEditingController();
+  final _quantityCtrl = TextEditingController();
   final _autoAmountctrl = TextEditingController();
   final _autoIntervalCtrl = TextEditingController();
+  final _priceCtrl = TextEditingController();
   String _unit = 'pcs';
   DateTime? _expiryDate;
   bool _isSubmitting = false;
@@ -36,9 +37,10 @@ class _AddItemScreenState extends State<AddItemScreen>{
   @override
   void dispose() {
     _nameCtrl.dispose();
-    _quantitCtrl.dispose();
+    _quantityCtrl.dispose();
     _autoAmountctrl.dispose();
     _autoIntervalCtrl.dispose();
+    _priceCtrl.dispose();
     super.dispose();
   }
 
@@ -78,11 +80,11 @@ class _AddItemScreenState extends State<AddItemScreen>{
       setState(() => _error = 'Item is required.');
       return;
     }
-    if (_quantitCtrl.text.trim().isEmpty) {
+    if (_quantityCtrl.text.trim().isEmpty) {
       setState(() => _error = 'Quantity is required.');
       return;
     }
-    final qty = double.tryParse(_quantitCtrl.text.trim());
+    final qty = double.tryParse(_quantityCtrl.text.trim());
     if (qty == null || qty <= 0) {
       setState(() => _error = 'Enter a valid quantity.');
       return;
@@ -122,7 +124,10 @@ class _AddItemScreenState extends State<AddItemScreen>{
         autoDecrementAmount: autoAmount,
         autoDecrementIntervalDays: autoInterval,
         );
-        await ApiService().addItem(item.toJson());
+        final payload = item.toJson();
+        final price = int.tryParse(_priceCtrl.text.trim());
+        if (price != null) payload['unit_price'] = price;
+        await ApiService().addItem(payload);
 
       //refresh the list and go back
       if (mounted) {
@@ -173,7 +178,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
                 Expanded(
                   flex: 2,
                   child: TextField(
-                    controller: _quantitCtrl,
+                    controller: _quantityCtrl,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
@@ -197,6 +202,15 @@ class _AddItemScreenState extends State<AddItemScreen>{
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 20),
+
+              _SectionLabel('Harga per satuan (opsional)'),
+              TextField(
+                controller: _priceCtrl,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: const InputDecoration(prefixText: 'Rp ', border: OutlineInputBorder()),
               ),
               const SizedBox(height: 20),
 
