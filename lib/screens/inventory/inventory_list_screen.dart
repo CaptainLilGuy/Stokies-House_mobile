@@ -336,6 +336,8 @@ class _RestockSheetContent extends StatefulWidget {
 class _RestockSheetContentState extends State<_RestockSheetContent> {
   final _qtyCtrl = TextEditingController();
   final _noteCtrl = TextEditingController();
+  final _priceCtrl = TextEditingController();
+
   bool _isSubmitting = false;
   String? _error;
 
@@ -343,11 +345,13 @@ class _RestockSheetContentState extends State<_RestockSheetContent> {
   void dispose() {
     _qtyCtrl.dispose();
     _noteCtrl.dispose();
+    _priceCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
     final qty = double.tryParse(_qtyCtrl.text.trim());
+    final price = int.tryParse(_priceCtrl.text.trim());
     if (qty == null || qty == 0) {
       setState(() => _error = 'Enter a valid amount');
       return;
@@ -357,7 +361,7 @@ class _RestockSheetContentState extends State<_RestockSheetContent> {
       _error = null;
     });
     try {
-      await ApiService().restockItem(widget.item.id, qty, note: _noteCtrl.text.trim());
+      await ApiService().restockItem(widget.item.id, qty, note: _noteCtrl.text.trim(), unitPrice: price);
       if (mounted) Navigator.pop(context);
     } catch (e) {
       setState(() {
@@ -392,7 +396,7 @@ class _RestockSheetContentState extends State<_RestockSheetContent> {
             ),
           ],
         ),
-          Text('Currently: ${widget.item.quantity} ${widget.item.unit}',
+          Text('Currently: ${widget.item.quantity} ${widget.item.unit}  ${widget.item.lastUnitPrice}',
               style: const TextStyle(color: Colors.grey, fontSize: 13)),
           const SizedBox(height: 16),
           TextField(
@@ -405,6 +409,19 @@ class _RestockSheetContentState extends State<_RestockSheetContent> {
               labelText: 'Amount to add',
               suffixText: widget.item.unit,
               border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _priceCtrl,
+            keyboardType: const TextInputType.numberWithOptions(decimal: false),
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+            ],
+            
+            decoration: const InputDecoration(
+              labelText: 'Price',
+              border: OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 12),
