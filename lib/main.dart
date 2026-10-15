@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/inventory_provider.dart';
 import 'providers/household_provider.dart';
+import 'providers/dashboard_provider.dart';
 import 'services/api_service.dart';
 import 'router.dart';
 import 'constants.dart';
@@ -42,6 +43,7 @@ class _HomeventoryAppState extends State<HomeventoryApp> {
         ChangeNotifierProvider(create: (_) => InventoryProvider()),
         ChangeNotifierProvider(create: (_) => ExpenseProvider()),
         ChangeNotifierProvider(create: (_) => HouseholdProvider()),
+        ChangeNotifierProvider(create: (_) => DashboardProvider()),  
       ],
       child: MaterialApp.router(
         title: 'Homeventory',

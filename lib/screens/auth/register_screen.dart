@@ -31,7 +31,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _emailCtrl.text.trim(),
       _passCtrl.text,
     );
-    if (success && mounted) context.go('/inventory');
+    if (success && mounted) context.go('/dashboard');
   }
 
   @override

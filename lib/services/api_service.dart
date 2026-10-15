@@ -72,6 +72,23 @@ class ApiService{
     });
     return res.data;
   }
+  // ─── DASHBOARD ─────────────────────────────────────────
+
+  Future<List<dynamic>> getTransactions() async {
+  final res = await _dio.get('/inventory/transactions/');
+  return res.data;
+}
+
+Future<void> logUsage(int itemId, double qty,
+    {required bool wasted, String? note}) async {
+  await _dio.post('/inventory/transactions/', data: {
+    'item': itemId,
+    'change_type': wasted ? 'wasted' : 'consumed',
+    'quantity_delta': (-qty).toStringAsFixed(2),
+    'source': 'manual',
+    if (note != null && note.isNotEmpty) 'note': note,
+  });
+}
 
   // ─── INVENTORY ─────────────────────────────────────────
 

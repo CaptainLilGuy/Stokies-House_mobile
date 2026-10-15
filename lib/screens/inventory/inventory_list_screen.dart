@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:homeventory/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
-import '../../constants.dart';
+// import '../../constants.dart';
 import '../../providers/inventory_provider.dart';
 import '../../models/inventory_item.dart';
+import '../../widgets/app_nav.dart';
 
 class InventoryListScreen extends StatefulWidget {
   const InventoryListScreen({super.key});
@@ -27,33 +28,6 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<InventoryProvider>().fetchItems();
     });
-  }
-
-  void _showAddOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context, 
-      useRootNavigator: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt_outlined),
-              title: const Text('Scan Receipt'),
-              subtitle: const Text('Auto-fill from a photo of a receipt'),
-              onTap: () => context.go('/inventory/scan-receipt'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.edit_outlined),
-              title: const Text('Enter manually'),
-              onTap: () => context.go('/inventory/add'),
-            )
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -156,52 +130,12 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                             ),
                           ),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              const storage = FlutterSecureStorage();
-              await storage.write(key: AppConstants.tokenKey, value: 'invalid_token');
-              await storage.write(key: AppConstants.refreshTokenKey, value: 'invalid_refresh_token');
-            },
-            child: const Text('DEBUG: corrupt both tokens'),
-          ),
+
         ],
       ),
     floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      //FAB to add item
-    floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddOptions(context),
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add, size: 50,),), 
-    bottomNavigationBar: BottomAppBar(
-      height: 56,
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 8.0,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              onPressed: () => context.go('/inventory'),
-              icon: const Icon(Icons.home, size: 30),
-            ),
-            IconButton(
-              onPressed: () => context.go('/inventory'),
-              icon: const Icon(Icons.inventory, size: 30),
-            ),
-            const SizedBox(width: 60),
-            IconButton(
-              onPressed: () => context.go('/expenses'),
-              icon: const Icon(Icons.receipt, size: 30),
-            ),
-            IconButton(
-              onPressed: () => context.go('/household'),
-              icon: const Icon(Icons.groups, size: 30),
-            ),
-          ],
-        ),
-      ),
-    ),
+    floatingActionButton: const AppAddFab(),
+    bottomNavigationBar: const AppBottomBar(current: NavTab.inventory),
     );
   }
 }

@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _submit() async {
     final auth = context.read<AuthProvider>();
     final success = await auth.login(_userCtrl.text.trim(), _passCtrl.text);
-    if (success && mounted) context.go('/inventory');
+    if (success && mounted) context.go('/dashboard');
   }
 
   @override

@@ -14,6 +14,7 @@ import 'screens/inventory/receipt_scan_screen.dart';
 import 'screens/inventory/receipt_review_screen.dart';
 import 'screens/inventory/receipt_submit_summary_screen.dart';
 import 'screens/expenses/add_expense_screen.dart';
+import 'screens/dashboard/dashboard_screen.dart';
 
 GoRouter createRouter(AuthProvider authProvider) {
   return GoRouter(
@@ -33,7 +34,7 @@ GoRouter createRouter(AuthProvider authProvider) {
         return '/login';
       }
       if (loggedIn && (goingToAuth || goingToSplah)) {
-        return '/inventory';
+        return '/dashboard';
       }
       return null;
     },
@@ -41,6 +42,7 @@ GoRouter createRouter(AuthProvider authProvider) {
       GoRoute(path: '/', builder: (ctx, state) => const SplashScreen()),
       GoRoute(path: '/login', builder: (ctx, state) => const LoginScreen()),
       GoRoute(path: '/register', builder: (ctx, state) => const RegisterScreen()),
+      GoRoute(path: '/dashboard', builder: (ctx, state) => const DashboardScreen()),
       GoRoute(path: '/inventory', builder: (ctx, state) => const InventoryListScreen()),
       GoRoute(path: '/inventory/add', builder: (ctx, state) => const AddItemScreen()),
       GoRoute(path: '/household', builder: (ctx, state) => const HouseholdScreen()),
