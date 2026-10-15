@@ -8,6 +8,7 @@ class InventoryItem {
   final DateTime? expiryDate;
   final double? autoDecrementAmount;
   final int? autoDecrementIntervalDays;
+  final double? lastUnitPrice;
 
   InventoryItem({
     required this.id,
@@ -19,6 +20,7 @@ class InventoryItem {
     this.expiryDate,
     this.autoDecrementAmount,
     this.autoDecrementIntervalDays,
+    this.lastUnitPrice,
   });
 
   factory InventoryItem.fromJson(Map<String, dynamic> json) {
@@ -37,6 +39,9 @@ class InventoryItem {
                           : null,
       autoDecrementIntervalDays: json['auto_decrement_interval_days'] != null 
                                   ? int.parse(json['auto_decrement_interval_days'].toString())
+                                  : null,
+      lastUnitPrice: json['last_unit_price'] != null
+                                  ? double.tryParse(json['last_unit_price'].toString())
                                   : null,
     );
   }
