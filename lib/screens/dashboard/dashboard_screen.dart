@@ -231,7 +231,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       _spendingCard(dp, now),
                     ],
                     const SizedBox(height: 14),
-                    _priceCard(),
+                    _priceCard(dp),
                     const SizedBox(height: 14),
                     _patternCard(dp),
                     const SizedBox(height: 14),
@@ -457,16 +457,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // ── card 3 (needs unit-price storage first) ─────────────
-  Widget _priceCard() => _Card(
-        label: '3 · HARGA BERUBAH',
+  // ── card 3  ──────────────────────────────────────────────
+Widget _priceCard(DashboardProvider dp) {
+    const label = '3 · HARGA BERUBAH';
+    if (dp.priceChanges.isEmpty) {
+      return _Card(
+        label: label,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const _EmptyRow(
               icon: Icons.info_outline,
-              title: 'Belum ada riwayat harga',
-              body: 'Scan struk belanja dua kali atau lebih agar perubahan harga bisa dibandingkan.',
+              title: 'Belum ada perubahan harga',
+              body: 'Muncul setelah barang yang sama dibeli dua kali atau lebih dengan harga tercatat.',
             ),
             const SizedBox(height: 12),
             OutlinedButton.icon(
@@ -478,6 +481,73 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       );
+    }
+    final p = dp.priceChanges.first;
+    final up = p.changePct > 0;
+    return _Card(
+      label: label,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${p.name}${p.unit.isEmpty ? '' : ' (${p.unit})'}',
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                    Text('${_rp.format(p.lastPrice)} · ${_short(p.lastDate)}\n'
+                        'Rata-rata ${p.baselineCount} pembelian terakhir ${_rp.format(p.baselinePrice)}',
+                        style: const TextStyle(fontSize: 13, color: _muted, height: 1.45)),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: up ? _dangerBg : const Color(0xFFE3F1EC),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text('${up ? '▲' : '▼'} ${p.changePct.abs().toStringAsFixed(0)}%',
+                    style: TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w600,
+                        color: up ? _dangerFg : Theme.of(context).colorScheme.primary)),
+              ),
+            ],
+          ),
+          _InfoLink(
+              dp.priceChanges.length > 1
+                  ? 'Lihat ${dp.priceChanges.length} perubahan harga'
+                  : 'Lihat perhitungan',
+              () => _explainPrice(dp)),
+        ],
+      ),
+    );
+  }
+
+  void _explainPrice(DashboardProvider dp) {
+    showExplanationSheet(
+      context,
+      ExplanationData(
+        title: 'Perubahan harga',
+        result: '${dp.priceChanges.length} barang berubah harga lebih dari 10% dari biasanya.',
+        method:
+            'Harga pembelian terakhir dibandingkan dengan rata-rata hingga 3 pembelian '
+            'sebelumnya dari barang yang sama. Hanya barang yang dibeli dalam 30 hari terakhir '
+            'dan berubah minimal 10% yang ditampilkan.',
+        rows: [
+          for (final p in dp.priceChanges)
+            MapEntry(p.name,
+                '${_rp.format(p.baselinePrice)} → ${_rp.format(p.lastPrice)} '
+                '(${p.changePct > 0 ? '▲' : '▼'}${p.changePct.abs().toStringAsFixed(0)}%)'),
+        ],
+        limitation:
+            'Hanya memakai pembelian yang harganya tercatat. Perbandingan akurat bila satuan barang '
+            'sama di setiap pembelian (misalnya selalu kg).',
+      ),
+    );
+  }
 
   // ── card 4 ──────────────────────────────────────────────
   Widget _patternCard(DashboardProvider dp) {
@@ -568,10 +638,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
     }
     String? trend;
-    if (dp.wastedLastMonth > 0) {
-      final diff = ((dp.wastedThisMonth - dp.wastedLastMonth) / dp.wastedLastMonth * 100).round();
+    if (dp.wasteLastValue > 0 && dp.wasteValue > 0) {
+      final diff = ((dp.wasteValue - dp.wasteLastValue) / dp.wasteLastValue * 100).round();
       trend = diff <= 0 ? 'Turun ${diff.abs()}% dari bulan lalu' : 'Naik $diff% dari bulan lalu';
     }
+    final hasValue = dp.wasteValue > 0;
     return _Card(
       label: '$label (${_bln[now.month - 1].toUpperCase()})',
       child: Column(
@@ -581,9 +652,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             crossAxisAlignment: WrapCrossAlignment.end,
             spacing: 8,
             children: [
-              Text('${dp.wastedThisMonth} kali',
+              Text(hasValue ? _rp.format(dp.wasteValue) : '${dp.wastedThisMonth} kali',
                   style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
-              Text('bulan lalu ${dp.wastedLastMonth}',
+              Text(hasValue
+                      ? '${dp.wastedThisMonth} kali · bulan lalu ${_rp.format(dp.wasteLastValue)}'
+                      : 'bulan lalu ${dp.wastedLastMonth}',
                   style: const TextStyle(fontSize: 13, color: _muted)),
             ],
           ),
@@ -591,10 +664,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Text(trend, style: TextStyle(
                 fontSize: 13, fontWeight: FontWeight.w600,
                 color: trend.startsWith('Turun') ? Theme.of(context).colorScheme.primary : _warnFg)),
-          const SizedBox(height: 4),
-          const Text('Nilai rupiah muncul setelah harga barang tersimpan.',
-              style: TextStyle(fontSize: 13, color: _muted)),
+          if (dp.wasteUnvalued > 0)
+            Text('${dp.wasteUnvalued} catatan belum punya harga, jadi tidak dihitung dalam nilai.',
+                style: const TextStyle(fontSize: 13, color: _muted)),
+          if (dp.wasteItems.isNotEmpty) _InfoLink('Lihat item', () => _explainWaste(dp)),
         ],
+      ),
+    );
+  }
+  void _explainWaste(DashboardProvider dp) {
+    showExplanationSheet(
+      context,
+      ExplanationData(
+        title: 'Terbuang bulan ini',
+        result: '${_rp.format(dp.wasteValue)} dari ${dp.wastedThisMonth} catatan "Dibuang".',
+        method:
+            'Jumlah yang dibuang × harga pembelian terakhir barang itu sebelum dibuang.',
+        rows: [
+          for (final i in dp.wasteItems)
+            MapEntry(i.name, '${_qty(i.quantity)} ${i.unit} · ${_rp.format(i.value)}'),
+        ],
+        limitation:
+            'Catatan tanpa harga pembelian tidak dihitung nilainya. Harga bisa berbeda dari harga '
+            'sebenarnya barang yang dibuang.',
       ),
     );
   }

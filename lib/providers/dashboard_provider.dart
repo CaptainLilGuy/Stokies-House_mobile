@@ -12,7 +12,31 @@ class UsageCount {
   const UsageCount(this.name, this.count);
 }
 
+class PriceChange {
+  final String name, unit;
+  final double lastPrice, baselinePrice, changePct;
+  final DateTime lastDate;
+  final int baselineCount;
+  const PriceChange({required this.name, required this.unit, required this.lastPrice,
+      required this.baselinePrice, required this.changePct, required this.lastDate,
+      required this.baselineCount});
 
+  factory PriceChange.fromJson(Map<String, dynamic> j) => PriceChange(
+        name: j['name'],
+        unit: j['unit'] ?? '',
+        lastPrice: (j['last_price'] as num).toDouble(),
+        baselinePrice: (j['baseline_price'] as num).toDouble(),
+        changePct: (j['change_pct'] as num).toDouble(),
+        lastDate: DateTime.parse(j['last_date']),
+        baselineCount: j['baseline_count'] as int,
+      );
+}
+
+class WasteItem {
+  final String name, unit;
+  final double quantity, value;
+  const WasteItem(this.name, this.unit, this.quantity, this.value);
+}
 
 /// Client-side v1: derives the cards from endpoints that already exist.
 /// When the aggregated GET /dashboard/ endpoint is built, replace fetch()
@@ -40,6 +64,13 @@ class DashboardProvider extends ChangeNotifier {
   int wastedLastMonth = 0;
   List<UsageCount> topUsed = [];
   final Set<String> hidden = {};
+  List<PriceChange> priceChanges = [];
+  double wasteValue = 0;
+  double wasteLastValue = 0;
+  int wasteUnvalued = 0;
+  List<WasteItem> wasteItems = [];
+
+  
 
   // ── derived values ──────────────────────────────────────
   DateTime get _now => DateTime.now();
@@ -99,6 +130,7 @@ class DashboardProvider extends ChangeNotifier {
       _computeSpending(expenses);
       _computeTransactions(txns, items);
       hasLoaded = true;
+      await _fetchInsights();
     } catch (e) {
       errorMessage = parseApiError(e);
     } finally {
@@ -157,6 +189,28 @@ class DashboardProvider extends ChangeNotifier {
       for (final e in sorted.take(3))
         if (names[e.key] != null) UsageCount(names[e.key]!, e.value)
     ];
+  }
+
+  Future<void> _fetchInsights() async {
+    try {
+      final d = await ApiService().getDashboard();
+      priceChanges = (d['price_changes'] as List? ?? [])
+          .map((j) => PriceChange.fromJson(Map<String, dynamic>.from(j)))
+          .toList();
+      final w = Map<String, dynamic>.from(d['waste'] ?? {});
+      final cur = Map<String, dynamic>.from(w['this_month'] ?? {});
+      final prev = Map<String, dynamic>.from(w['last_month'] ?? {});
+      wasteValue = (cur['value'] as num?)?.toDouble() ?? 0;
+      wasteUnvalued = (cur['unvalued_events'] as num?)?.toInt() ?? 0;
+      wasteLastValue = (prev['value'] as num?)?.toDouble() ?? 0;
+      wasteItems = (w['top_items'] as List? ?? [])
+          .map((j) => WasteItem(j['name'], j['unit'] ?? '',
+              (j['quantity'] as num).toDouble(), (j['value'] as num).toDouble()))
+          .toList();
+    } catch (_) {
+      priceChanges = [];
+      wasteValue = 0; wasteLastValue = 0; wasteUnvalued = 0; wasteItems = [];
+    }
   }
 
   // ── actions ─────────────────────────────────────────────
