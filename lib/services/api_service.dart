@@ -72,12 +72,17 @@ class ApiService{
     });
     return res.data;
   }
-  // ─── DASHBOARD ─────────────────────────────────────────
+  // ─── DASHBOARD & LOGS ───────────────────────────────────
+
+    Future<Map<String, dynamic>> getDashboard() async {
+      final res = await _dio.get('/dashboard/');
+      return Map<String, dynamic>.from(res.data);
+    }
 
   Future<List<dynamic>> getTransactions() async {
-  final res = await _dio.get('/inventory/transactions/');
-  return res.data;
-}
+    final res = await _dio.get('/inventory/transactions/');
+    return res.data;
+  }
 
 Future<void> logUsage(int itemId, double qty,
     {required bool wasted, String? note}) async {
