@@ -10,3 +10,9 @@ class AppConstants {
   static const String userIdKey = 'user_id';
   static const String refreshTokenKey = 'refresh_token';
 }
+
+class TransactionSource {
+  static const ocr = 'ocr';
+  static const manual = 'manual';
+  static const auto = 'auto';
+}

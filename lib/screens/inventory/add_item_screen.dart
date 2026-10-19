@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import '../../providers/inventory_provider.dart';
 import '../../models/inventory_item.dart';
 import '../../models/category.dart';
-
+import '../../constants.dart';
 
 class AddItemScreen extends StatefulWidget {
   const AddItemScreen({super.key});
@@ -123,6 +123,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
         expiryDate: _expiryDate,
         autoDecrementAmount: autoAmount,
         autoDecrementIntervalDays: autoInterval,
+        source: TransactionSource.ocr,
         );
         final payload = item.toJson();
         final price = int.tryParse(_priceCtrl.text.trim());

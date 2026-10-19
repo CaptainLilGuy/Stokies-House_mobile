@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:homeventory/constants.dart';
 import 'package:homeventory/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -289,7 +290,7 @@ class _RestockSheetContentState extends State<_RestockSheetContent> {
       _error = null;
     });
     try {
-      await ApiService().restockItem(widget.item.id, qty, note: _noteCtrl.text.trim(), unitPrice: price);
+      await ApiService().restockItem(widget.item.id, qty, note: _noteCtrl.text.trim(), unitPrice: price, source: TransactionSource.manual,);
       if (mounted) Navigator.pop(context);
     } catch (e) {
       setState(() {

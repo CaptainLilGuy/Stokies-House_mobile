@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:homeventory/constants.dart';
 import 'package:homeventory/models/category.dart';
 import 'package:homeventory/services/api_service.dart';
 import 'package:intl/intl.dart';
@@ -154,7 +155,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
           qty,
           note: 'From receipt scan',
           unitPrice: price,
-          source: 'ocr',
+          source: TransactionSource.ocr,
         );
         results.add({'name': name, 'success': true, 'action': 'restocked'});
         } else {
@@ -164,7 +165,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
             'unit': 'pcs',
             'category': item.selectedCategory!.id,
             'unit_price': ?price,
-            'source': 'ocr',
+            'source': TransactionSource.ocr,
           });
           results.add({'name': name, 'success': true, 'action': 'created'});
         }

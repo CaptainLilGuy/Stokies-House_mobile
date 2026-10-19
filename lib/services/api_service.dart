@@ -90,7 +90,7 @@ Future<void> logUsage(int itemId, double qty,
     'item': itemId,
     'change_type': wasted ? 'wasted' : 'consumed',
     'quantity_delta': (-qty).toStringAsFixed(2),
-    'source': 'manual',
+    'source': TransactionSource.manual,
     if (note != null && note.isNotEmpty) 'note': note,
   });
 }
@@ -117,12 +117,12 @@ Future<void> logUsage(int itemId, double qty,
   }
 
   Future<void> restockItem(int itemId, double quantityDelta, 
-  {String? note, int? unitPrice, String source = 'manual'}) async {
+  {String? note, int? unitPrice, required String source}) async {
     await _dio.post('/inventory/transactions/', data: {
       'item': itemId,
       'change_type': 'restocked',
       'quantity_delta': quantityDelta,
-      'source': 'manual',
+      'source': source,
       'unit_price': ?unitPrice,
       if (note != null && note.isNotEmpty)'note': note,
     });

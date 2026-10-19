@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:homeventory/constants.dart';
 import '../models/expense.dart';
 import '../models/inventory_item.dart';
 import '../services/api_service.dart';
@@ -171,7 +172,7 @@ class DashboardProvider extends ChangeNotifier {
     for (final t in txns) {
       final type = t['change_type'];
       final at = DateTime.tryParse(t['created_at']?.toString() ?? '')?.toLocal();
-      if (type == 'consumed' && t['source'] == 'manual') {
+      if (type == 'consumed' && t['source'] == TransactionSource.manual) {
         usageLogCount++;
         final id = t['item'] as int?;
         if (id != null) counts[id] = (counts[id] ?? 0) + 1;
