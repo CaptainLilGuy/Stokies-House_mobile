@@ -15,6 +15,7 @@ import 'screens/inventory/receipt_review_screen.dart';
 import 'screens/inventory/receipt_submit_summary_screen.dart';
 import 'screens/expenses/add_expense_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
+import 'screens/main_shell.dart';
 
 GoRouter createRouter(AuthProvider authProvider) {
   return GoRouter(
@@ -39,14 +40,27 @@ GoRouter createRouter(AuthProvider authProvider) {
       return null;
     },
     routes: [
+      StatefulShellRoute.indexedStack(
+        builder: (ctx, state, navigationShell) => 
+          MainShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(routes:[
+            GoRoute(path: '/dashboard', builder: (ctx, state) => const DashboardScreen()),
+          ]),
+          StatefulShellBranch(routes: [
+              GoRoute(path: '/inventory', builder: (ctx, state) => const InventoryListScreen()),
+          ]),
+          StatefulShellBranch(routes: [
+              GoRoute(path: '/expenses', builder: (ctx, state) => const ExpenseScreen()),
+          ]),
+          StatefulShellBranch(routes: [
+              GoRoute(path: '/household', builder: (ctx, state) => const HouseholdScreen()),
+          ]),
+        ]),
       GoRoute(path: '/', builder: (ctx, state) => const SplashScreen()),
       GoRoute(path: '/login', builder: (ctx, state) => const LoginScreen()),
       GoRoute(path: '/register', builder: (ctx, state) => const RegisterScreen()),
-      GoRoute(path: '/dashboard', builder: (ctx, state) => const DashboardScreen()),
-      GoRoute(path: '/inventory', builder: (ctx, state) => const InventoryListScreen()),
-      GoRoute(path: '/inventory/add', builder: (ctx, state) => const AddItemScreen()),
-      GoRoute(path: '/household', builder: (ctx, state) => const HouseholdScreen()),
-      GoRoute(path: '/expenses', builder: (ctx, state) => const ExpenseScreen()),
+      GoRoute(path: '/inventory/add', builder: (ctx, state) => const AddItemScreen()), 
       GoRoute(path: '/inventory/categories', builder: (ctx, state) => const CategoryManagementScreen()),
       GoRoute(path: '/inventory/scan-receipt', builder: (ctx, state) => const ReceiptScanScreen()),
       GoRoute(path: '/inventory/scan-receipt/review',

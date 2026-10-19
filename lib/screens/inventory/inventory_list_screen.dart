@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:homeventory/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
-// import '../../constants.dart';
 import '../../providers/inventory_provider.dart';
 import '../../models/inventory_item.dart';
-import '../../widgets/app_nav.dart';
 
 class InventoryListScreen extends StatefulWidget {
   const InventoryListScreen({super.key});
@@ -133,9 +130,6 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
 
         ],
       ),
-    floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-    floatingActionButton: const AppAddFab(),
-    bottomNavigationBar: const AppBottomBar(current: NavTab.inventory),
     );
   }
 }

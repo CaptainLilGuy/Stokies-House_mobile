@@ -7,7 +7,6 @@ import '../../models/inventory_item.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/household_provider.dart';
 import '../../providers/inventory_provider.dart';
-import '../../widgets/app_nav.dart';
 import '../../widgets/explanation_sheet.dart';
 
 // Palette from the hi-fi mockup
@@ -202,9 +201,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       backgroundColor: _bg,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: const AppAddFab(),
-      bottomNavigationBar: const AppBottomBar(current: NavTab.home),
+
       body: SafeArea(
         child: dp.isLoading
             ? const Center(child: CircularProgressIndicator())

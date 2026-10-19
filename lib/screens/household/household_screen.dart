@@ -31,10 +31,6 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
       appBar: AppBar(
         title: const Text('Household'),
         centerTitle: false,
-        leading: IconButton( 
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => context.go('/inventory'),
-        ),
         actions: [
           IconButton(
           icon: Icon(Icons.logout),

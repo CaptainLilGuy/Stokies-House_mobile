@@ -40,9 +40,6 @@ class _ExpenseScreenState extends State<ExpenseScreen>
       appBar: AppBar(
         title: const Text('Expense'),
         centerTitle: false,
-        leading: IconButton(
-          onPressed: () => context.go('/inventory'),
-          icon: const Icon(Icons.arrow_back)),
         bottom: TabBar(
           controller: _tabs,
           tabs: const [
