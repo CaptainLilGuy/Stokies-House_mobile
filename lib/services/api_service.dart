@@ -108,7 +108,7 @@ Future<void> logUsage(int itemId, double qty,
   }
 
   Future<Map<String, dynamic>> updateItem(int id, Map<String, dynamic> item) async {
-    final res = await _dio.put('/inventory/items/$id/', data: item);
+    final res = await _dio.patch('/inventory/items/$id/', data: item);
     return res.data;
   }
 

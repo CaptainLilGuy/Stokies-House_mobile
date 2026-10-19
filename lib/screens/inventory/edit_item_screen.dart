@@ -112,7 +112,9 @@ class _EditItemScreenState extends State<EditItemScreen> {
         'name': _nameCtrl.text.trim(),
         'unit': _unit,
         'category': _selectedCategory!.id,
-        'expiry_date': _expiryDate?.toIso8601String(),
+        'expiry_date': _expiryDate != null
+                        ? DateFormat('yyyy-MM-dd').format(_expiryDate!)
+                        : null,
         'auto_decrement_amount': _autoDecrementEnabled ? autoAmount : null,
         'auto_decrement_interval_days': _autoDecrementEnabled ? autoInterval : null,
       };

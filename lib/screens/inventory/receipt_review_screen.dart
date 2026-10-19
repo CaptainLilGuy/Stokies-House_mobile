@@ -382,7 +382,13 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
       ],
-      decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+      decoration: InputDecoration(
+        labelText: label, 
+        border: const OutlineInputBorder(),
+        // suffixIcon: IconButton(
+        //   onPressed: , 
+        //   icon: const Icon(Icons.refresh)),
+      ),
     );
   }
 
