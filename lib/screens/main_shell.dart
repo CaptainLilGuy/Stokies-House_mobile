@@ -73,10 +73,11 @@ class MainShell extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _navItem(context, 0, Icons.inventory_2_outlined, Icons.inventory_2, 'Inventory'),
-              _navItem(context, 1, Icons.receipt_long_outlined, Icons.receipt_long, 'Expenses'),
+              _navItem(context, 0, Icons.home_outlined, Icons.home, 'Home'),
+              _navItem(context, 1, Icons.inventory_2_outlined, Icons.inventory_2, 'Inventory'),
               const SizedBox(width: 60), // gap for the FAB
-              _navItem(context, 2, Icons.groups_outlined, Icons.groups, 'Household'),
+              _navItem(context, 2, Icons.receipt_long_outlined, Icons.receipt_long, 'Expenses'),
+              _navItem(context, 3, Icons.groups_outlined, Icons.groups, 'Household')
             ],
           ),
         ),
