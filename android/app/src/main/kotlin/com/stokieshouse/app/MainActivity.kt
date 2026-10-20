@@ -1,4 +1,4 @@
-package com.example.homeventory
+package com.stokieshouse.app
 
 import io.flutter.embedding.android.FlutterActivity
 
