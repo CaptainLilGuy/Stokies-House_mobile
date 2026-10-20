@@ -61,6 +61,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final err = await dp.logUsage(item, wasted: kind == UsageKind.wasted, qty: qty);
     messenger.showSnackBar(SnackBar(
       content: Text(err ?? 'Tercatat: ${item.name}'),
+      behavior: SnackBarBehavior.floating,
     ));
     if (err == null) inv.fetchItems();
   }
