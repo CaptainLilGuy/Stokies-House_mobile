@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "433102488327",
+    "project_id": "stokies-house",
+    "storage_bucket": "stokies-house.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:433102488327:android:c178acd31bc1cb01f7bba2",
+        "android_client_info": {
+          "package_name": "com.stokieshouse.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBieJzy0kdLGQ4Wpa02qkM4OtdriToiAnc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

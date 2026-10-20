@@ -9,8 +9,21 @@ import 'providers/dashboard_provider.dart';
 import 'services/api_service.dart';
 import 'router.dart';
 import 'constants.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  final messaging = FirebaseMessaging.instance;
+  await messaging.requestPermission();
+  // ignore: deprecated_member_use
+  final token = await messaging.getToken();
+  // ignore: avoid_print
+  print('FCM token: $token');
+
   // ignore: avoid_print
   print('Using base URL: ${AppConstants.baseUrl}');
   runApp(const HomeventoryApp());
