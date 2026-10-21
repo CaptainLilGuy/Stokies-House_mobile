@@ -56,7 +56,6 @@ class DefaultFirebaseOptions {
     projectId: 'stokies-house',
     storageBucket: 'stokies-house.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDh_XevinrYsZyycoRMN0EIqhhmccjehLI',
     appId: '1:433102488327:ios:a2a0df72eed7e38af7bba2',

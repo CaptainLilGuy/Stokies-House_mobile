@@ -54,4 +54,3 @@ android/key.properties
 *.jks
 *.keystore
 .env
-lib/firebase_options.dart
