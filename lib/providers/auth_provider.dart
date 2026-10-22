@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../services/api_service.dart';
 import '../constants.dart';
+import '../services/notification_service.dart';
 
 class AuthProvider extends ChangeNotifier{
   final _storage = const FlutterSecureStorage();
@@ -20,9 +21,8 @@ class AuthProvider extends ChangeNotifier{
     print("hasCheckedAuth has become TRUE!");
     if (isLoggedIn) {
       unawaited(ApiService().processAutoDecrements());
+      unawaited(NotificationService().registerDevice());
     }
-    // ignore: avoid_print
-    print("reached");
     notifyListeners();
   }
 
@@ -37,6 +37,7 @@ class AuthProvider extends ChangeNotifier{
       await _storage.write(key: AppConstants.refreshTokenKey, value: data['refresh']);
       await _storage.write(key: AppConstants.userIdKey, value: data['user_id'].toString());
       isLoggedIn = true;
+      unawaited(NotificationService().registerDevice());
       unawaited(ApiService().processAutoDecrements());
       return true;
     } catch (e) {
@@ -66,6 +67,7 @@ class AuthProvider extends ChangeNotifier{
    }
 
   Future<void> logout() async {
+    await NotificationService().unregisterDevice();
     await _storage.deleteAll();
     isLoggedIn = false;
     notifyListeners();

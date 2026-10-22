@@ -97,6 +97,14 @@ Future<void> logUsage(int itemId, double qty,
 
   // ─── INVENTORY ─────────────────────────────────────────
 
+  Future<void> registerDeviceToken(String token) async {
+    await _dio.post('/users/devices/', data: {'token': token, 'platform': 'android'});
+  }
+
+  Future<void> unregisterDeviceToken(String token) async {
+    await _dio.delete('/users/devices/', data: {'token': token});
+  }
+
   Future<List<dynamic>> getInventory() async {
     final res = await _dio.get('/inventory/items/');
     return res.data;
