@@ -11,6 +11,7 @@ import 'router.dart';
 import 'constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,13 +32,25 @@ class HomeventoryApp extends StatefulWidget {
 class _HomeventoryAppState extends State<HomeventoryApp> {
   late final AuthProvider _authProvider;
   late final GoRouter _router;
+  late final DashboardProvider _dashboardProvider;
+  final _messengerKey = GlobalKey<ScaffoldMessengerState>();
 
   @override
   void initState() {
     super.initState();
     _authProvider = AuthProvider();
+    _dashboardProvider = DashboardProvider();
     _router = createRouter(_authProvider);
     ApiService().onSessionExpired = () => _authProvider.forceLogout();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      NotificationService().initMessageHandkers(
+        messengerKey: _messengerKey, 
+        router: _router, 
+        onForegroundMessage: () {
+          if (_authProvider.isLoggedIn) _dashboardProvider.fetch(silent: true);
+        });
+    });
   }
 
   @override 
@@ -47,10 +60,11 @@ class _HomeventoryAppState extends State<HomeventoryApp> {
         ChangeNotifierProvider.value(value: _authProvider),
         ChangeNotifierProvider(create: (_) => InventoryProvider()),
         ChangeNotifierProvider(create: (_) => ExpenseProvider()),
-        ChangeNotifierProvider(create: (_) => HouseholdProvider()),
-        ChangeNotifierProvider(create: (_) => DashboardProvider()),  
+        ChangeNotifierProvider(create: (_) => HouseholdProvider()),  
+        ChangeNotifierProvider.value(value: _dashboardProvider)
       ],
       child: MaterialApp.router(
+        scaffoldMessengerKey: _messengerKey,
         title: 'Homeventory',
         debugShowCheckedModeBanner: false,
         routerConfig: _router,

@@ -1,14 +1,59 @@
 import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'api_service.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
+  static const _allowedRoutes = {'/dashboard'};
+  bool _handlersReady = false;
 
   String? _token;
   StreamSubscription<String>? _refreshSub;
+
+  Future<void> initMessageHandkers({
+    required GlobalKey<ScaffoldMessengerState> messengerKey,
+    required GoRouter router,
+    required VoidCallback onForegroundMessage,
+  }) async {
+    if (_handlersReady) return;
+    _handlersReady = true;
+
+    void open(RemoteMessage m) {
+      final route = m.data['route'];
+      if (route is String && _allowedRoutes.contains(route)) router.go(route);
+    }
+
+    FirebaseMessaging.onMessage.listen((m) {
+      onForegroundMessage();
+      final n = m.notification;
+      if (n == null) return;
+      messengerKey.currentState
+        ?..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 6),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (n.title != null)
+               Text(n.title!, style: const TextStyle(fontWeight: FontWeight.w700)),
+              if (n.body != null) Text(n.body!),
+            ],
+          ),
+          action: SnackBarAction(label: 'Lihat', onPressed: () => open(m)),
+          ));
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen(open);
+
+    final initial = await FirebaseMessaging.instance.getInitialMessage();
+    if (initial != null) open(initial);
+  }
 
   Future<void> registerDevice() async {
     try {
