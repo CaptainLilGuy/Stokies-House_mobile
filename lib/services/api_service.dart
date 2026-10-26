@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:homeventory/models/category.dart';
 import '../constants.dart';
+// import 'package:homeventory/models/tag.dart';
 
 class ApiService{
   static final ApiService _instance = ApiService._internal();
@@ -150,6 +151,10 @@ Future<void> logUsage(int itemId, double qty,
   Future<void> deleteCategory(int id) async {
     await _dio.delete('/inventory/categories/$id/');
   }
+
+  // Future<List<Tag>> getTag() async {
+
+  // }
 
   Future<void> getItemDetail(int id) async {
     await _dio.get('/inventory/$id/');
