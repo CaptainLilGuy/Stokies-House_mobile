@@ -164,9 +164,9 @@ Future<void> logUsage(int itemId, double qty,
     }
   }
 
-  Future<Map<String, dynamic>> parseReceipt(String rawText) async {
+  Future<Map<String, dynamic>> parseReceipt(List<String> rawTexts) async {
     final response = await _dio.post(
-      '/inventory/ocr-parse/', data: {'raw_text': rawText},
+      '/inventory/ocr-parse/', data: {'raw_texts': rawTexts},
     );
       return response.data as Map<String, dynamic>;
   }
