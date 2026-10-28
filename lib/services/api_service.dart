@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:homeventory/models/category.dart';
 import '../constants.dart';
-// import 'package:homeventory/models/tag.dart';
+import 'package:homeventory/models/tag.dart';
 
 class ApiService{
   static final ApiService _instance = ApiService._internal();
@@ -136,6 +136,8 @@ Future<void> logUsage(int itemId, double qty,
       if (note != null && note.isNotEmpty)'note': note,
     });
   }
+  
+// --- Categories ----------------------------------------------------
 
   Future<List<Category>> getCategories() async {
     final response = await _dio.get('/inventory/categories/');
@@ -152,9 +154,29 @@ Future<void> logUsage(int itemId, double qty,
     await _dio.delete('/inventory/categories/$id/');
   }
 
-  // Future<List<Tag>> getTag() async {
+  // --- Tags --------------------------------------------------------
 
-  // }
+  Future<List<Tag>> getTag() async {
+    final res = await _dio.get('/inventory/tags/');
+    return (res.data as List)
+            .map((e) => Tag.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+  }
+
+  Future<Tag> addTag(String name) async {
+    final res = await _dio.post('/inventory/tags/', data: {'name': name});
+    return Tag.fromJson(Map<String, dynamic>.from(res.data));
+  }
+
+  Future<Tag> renameTag(int id, String name) async {
+    final res = await _dio.patch('/inventory/tags/$id/', data: {'name': name});
+    return Tag.fromJson(Map<String, dynamic>.from(res.data));
+  }
+
+  Future<void> deleteTag(int id) async {
+    await _dio.delete('/inventory/tags/$id/');
+  }
+  
 
   Future<void> getItemDetail(int id) async {
     await _dio.get('/inventory/$id/');
