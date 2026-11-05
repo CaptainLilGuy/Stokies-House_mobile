@@ -16,6 +16,7 @@ import 'screens/inventory/receipt_submit_summary_screen.dart';
 import 'screens/expenses/add_expense_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
 import 'screens/main_shell.dart';
+import 'screens/inventory/tag_management_screen.dart';
 
 GoRouter createRouter(AuthProvider authProvider) {
   return GoRouter(
@@ -62,6 +63,7 @@ GoRouter createRouter(AuthProvider authProvider) {
       GoRoute(path: '/register', builder: (ctx, state) => const RegisterScreen()),
       GoRoute(path: '/inventory/add', builder: (ctx, state) => const AddItemScreen()), 
       GoRoute(path: '/inventory/categories', builder: (ctx, state) => const CategoryManagementScreen()),
+      GoRoute(path: '/inventory/tags', builder: (ctx, state) => const TagManagementScreen()),
       GoRoute(path: '/inventory/scan-receipt', builder: (ctx, state) => const ReceiptScanScreen()),
       GoRoute(path: '/inventory/scan-receipt/review',
         builder: (ctx, state) {

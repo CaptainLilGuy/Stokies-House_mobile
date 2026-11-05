@@ -46,6 +46,10 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
           IconButton(
             onPressed: () => context.go('/household'), 
             icon: const Icon(Icons.home_outlined)),
+          IconButton(
+            tooltip: 'Manage tags',
+            onPressed: () => context.push('/inventory/tags'), 
+            icon: const Icon(Icons.sell_outlined)),
         ],
       ),
       body: Column(
@@ -93,6 +97,27 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
               }, 
             ),
           ),
+          if (inv.availableTags.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            SizedBox(
+              height: 40,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                scrollDirection: Axis.horizontal,
+                itemCount: inv.availableTags.length,
+                separatorBuilder: (context, index) => const SizedBox(width: 6),
+                itemBuilder: (ctx, i) {
+                  final tag = inv.availableTags[i];
+                  return FilterChip(
+                    avatar: const Icon(Icons.sell_outlined, size: 16),
+                    label: Text(tag.name),
+                    selected: inv.selectedTagIds.contains(tag.id),
+                    onSelected: (_) => inv.toggleTag(tag.id),
+                  );
+                },
+              ),
+            ),
+          ],
           const SizedBox(height: 8,),
 
           //list
@@ -215,6 +240,14 @@ class _ItemTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('${item.quantity} ${item.unit}  ·  ${item.categoryName ?? 'Unrecognized'}'),
+              if (item.tags.isNotEmpty)
+                Text(
+                  item.tags.map((t) => '#${t.name}').join(' '),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
               if (item.expiryDate != null)
                 Text(
                   _isExpired

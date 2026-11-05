@@ -156,7 +156,7 @@ Future<void> logUsage(int itemId, double qty,
 
   // --- Tags --------------------------------------------------------
 
-  Future<List<Tag>> getTag() async {
+  Future<List<Tag>> getTags() async {
     final res = await _dio.get('/inventory/tags/');
     return (res.data as List)
             .map((e) => Tag.fromJson(Map<String, dynamic>.from(e)))

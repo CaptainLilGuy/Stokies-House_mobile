@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:homeventory/services/api_service.dart';
+import 'package:homeventory/widgets/tag_selector.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../providers/inventory_provider.dart';
 import '../../models/inventory_item.dart';
 import '../../models/category.dart';
+import '../../models/tag.dart';
+
 
 class EditItemScreen extends StatefulWidget {
   final InventoryItem item;
@@ -20,6 +23,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
   late final TextEditingController _autoAmountCtrl;
   late final TextEditingController _autoIntervalCtrl;
   late String _unit;
+  late List<Tag> _tags;
   DateTime? _expiryDate;
   bool _isSubmitting = false;
   String? _error;
@@ -36,6 +40,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
     final item = widget.item;
     _nameCtrl = TextEditingController(text: item.name);
     _unit = item.unit;
+    _tags = List.of(item.tags);
     _expiryDate = item.expiryDate;
     _autoAmountCtrl = TextEditingController(text: item.autoDecrementAmount?.toString() ?? '');
     _autoIntervalCtrl = TextEditingController(text: item.autoDecrementIntervalDays?.toString() ?? '');
@@ -111,6 +116,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
       final payload = {
         'name': _nameCtrl.text.trim(),
         'unit': _unit,
+        'tag_ids': _tags.map((t) => t.id).toList(),
         'category': _selectedCategory!.id,
         'expiry_date': _expiryDate != null
                         ? DateFormat('yyyy-MM-dd').format(_expiryDate!)
@@ -179,6 +185,13 @@ class _EditItemScreenState extends State<EditItemScreen> {
                 decoration: const InputDecoration(border: OutlineInputBorder()),
                 items: _categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat.name))).toList(), 
                 onChanged: (val) => setState(() => _selectedCategory = val),
+              ),
+            const SizedBox(height: 20),
+
+            _SectionLabel('Tags'),
+            TagSelector(
+              selected: _tags, 
+              onChanged: (v) => setState(() => _tags = v),
               ),
             const SizedBox(height: 20),
             

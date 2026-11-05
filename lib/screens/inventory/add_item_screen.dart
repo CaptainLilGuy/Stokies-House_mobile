@@ -8,6 +8,8 @@ import '../../providers/inventory_provider.dart';
 import '../../models/inventory_item.dart';
 import '../../models/category.dart';
 import '../../constants.dart';
+import '../../widgets/tag_selector.dart';
+import '../../models/tag.dart';
 
 class AddItemScreen extends StatefulWidget {
   const AddItemScreen({super.key});
@@ -22,6 +24,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
   final _autoAmountctrl = TextEditingController();
   final _autoIntervalCtrl = TextEditingController();
   final _priceCtrl = TextEditingController();
+  List<Tag> _tags = [];
   String _unit = 'pcs';
   DateTime? _expiryDate;
   bool _isSubmitting = false;
@@ -126,6 +129,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
         source: TransactionSource.ocr,
         );
         final payload = item.toJson();
+        payload['tags.ids'] = _tags.map((t) => t.id).toList();
         final price = int.tryParse(_priceCtrl.text.trim());
         if (price != null) payload['unit_price'] = price;
         await ApiService().addItem(payload);
@@ -241,6 +245,13 @@ class _AddItemScreenState extends State<AddItemScreen>{
                 title: const Text('Manage Categories'),
                 onTap: () => context.go('/inventory/categories'),
               ),
+              const SizedBox(height: 20),
+
+              _SectionLabel('Tags (optional)'),
+              TagSelector(
+                selected: _tags, 
+                onChanged: (v) => setState(() => _tags = v),
+                ),
               const SizedBox(height: 20),
 
               //Expiry date

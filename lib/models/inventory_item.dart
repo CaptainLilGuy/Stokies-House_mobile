@@ -1,3 +1,5 @@
+import 'tag.dart';
+
 class InventoryItem {
   final int id;
   final String name;
@@ -5,6 +7,7 @@ class InventoryItem {
   final String unit;
   final int? categoryId;
   final String? categoryName;
+  final List<Tag> tags;
   final DateTime? expiryDate;
   final double? autoDecrementAmount;
   final int? autoDecrementIntervalDays;
@@ -18,6 +21,7 @@ class InventoryItem {
     required this.unit,
     this.categoryId,
     this.categoryName,
+    this.tags = const [],
     this.expiryDate,
     this.autoDecrementAmount,
     this.autoDecrementIntervalDays,
@@ -33,6 +37,9 @@ class InventoryItem {
       unit: json['unit'] ?? '',
       categoryId: json['category'],
       categoryName: json['category_name'],
+      tags: (json['tags'] as List? ?? [])
+              .map((t) => Tag.fromJson(Map<String, dynamic>.from(t)))
+              .toList(),
       expiryDate: json['expiry_date'] != null
                   ? DateTime.tryParse(json['expiry_date'])
                   : null,
