@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:dio/dio.dart';
+// import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:homeventory/services/api_service.dart';
@@ -19,7 +19,8 @@ class _ReceiptScanScreenState extends State<ReceiptScanScreen> {
   final ImagePicker _picker = ImagePicker();
   final List<File> _images = [];
   int _selected = 0;
-  bool _isProcessing = false;
+  // bool _isProcessing = false;
+  final bool _isProcessing = false;
   final TextRecognizer _textRecognizer =
       TextRecognizer(script: TextRecognitionScript.latin);
 
@@ -97,34 +98,68 @@ class _ReceiptScanScreenState extends State<ReceiptScanScreen> {
   }
 
   Future<void> _useThesePhotos() async {
-    if (_images.isEmpty) return;
-    setState(() => _isProcessing = true);
+    // if (_images.isEmpty) return;
+    // setState(() => _isProcessing = true);
 
-    try {
-      final texts = <String>[];
-      for (var i = 0; i < _images.length; i++) {
-        final result = await _textRecognizer
-            .processImage(InputImage.fromFile(_images[i]));
-        if (result.text.trim().isEmpty) {
-          if (mounted) setState(() => _selected = i);
-          _snack('No text detected in photo ${i + 1} — remove it or retake with better lighting.');
-          return;
-        }
-        texts.add(result.text);
+    // try {
+    //   final texts = <String>[];
+    //   for (var i = 0; i < _images.length; i++) {
+    //     final result = await _textRecognizer
+    //         .processImage(InputImage.fromFile(_images[i]));
+    //     if (result.text.trim().isEmpty) {
+    //       if (mounted) setState(() => _selected = i);
+    //       _snack('No text detected in photo ${i + 1} — remove it or retake with better lighting.');
+    //       return;
+    //     }
+    //     texts.add(result.text);
+    //   }
+
+    //   final parsedData = await ApiService().parseReceipt(texts);
+    //   if (mounted) {
+    //     context.push('/inventory/scan-receipt/review', extra: parsedData);
+    //   }
+    // } on DioException catch (e) {
+    //   // _snack('Could not reach server: ${e.message}');
+    //   _snack(parseApiError(e));
+
+    // } catch (e) {
+    //   _snack('Something went wrong: $e');
+    // } finally {
+    //   if (mounted) setState(() => _isProcessing = false);
+    // }
+
+    final texts = <String>[];
+    final pages = <Map<String, dynamic>>[];
+    for (var i = 0; i < _images.length; i++) {
+      final result = await _textRecognizer
+          .processImage(InputImage.fromFile(_images[i]));
+      if (result.text.trim().isEmpty) {
+        // ...existing "No text detected" handling, unchanged...
       }
+      texts.add(result.text);
+      pages.add({
+        'lines': [
+          for (var b = 0; b < result.blocks.length; b++)
+            for (final l in result.blocks[b].lines)
+              {
+                'block': b,
+                'text': l.text,
+                'box': [
+                  l.boundingBox.left, l.boundingBox.top,
+                  l.boundingBox.right, l.boundingBox.bottom,
+                ],
+                'corners': [for (final p in l.cornerPoints) [p.x, p.y]],
+              }
+        ],
+      });
+    }
 
-      final parsedData = await ApiService().parseReceipt(texts);
-      if (mounted) {
-        context.push('/inventory/scan-receipt/review', extra: parsedData);
-      }
-    } on DioException catch (e) {
-      // _snack('Could not reach server: ${e.message}');
-      _snack(parseApiError(e));
-
-    } catch (e) {
-      _snack('Something went wrong: $e');
-    } finally {
-      if (mounted) setState(() => _isProcessing = false);
+    final parsedData = await ApiService().parseReceipt(texts, pages: pages);
+    debugPrint('layout=${parsedData['layout_detected']} '
+    'vendor=${parsedData['meta']?['vendor']} '
+    'checks=${parsedData['meta']?['checks']}');
+    if (mounted) {
+      context.push('/inventory/scan-receipt/review', extra: parsedData);
     }
   }
 

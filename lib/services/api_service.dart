@@ -191,12 +191,23 @@ Future<void> logUsage(int itemId, double qty,
     }
   }
 
-  Future<Map<String, dynamic>> parseReceipt(List<String> rawTexts) async {
-    final response = await _dio.post(
-      '/inventory/ocr-parse/', data: {'raw_texts': rawTexts},
-    );
-      return response.data as Map<String, dynamic>;
-  }
+  // Future<Map<String, dynamic>> parseReceipt(List<String> rawTexts) async {
+  //   final response = await _dio.post(
+  //     '/inventory/ocr-parse/', data: {'raw_texts': rawTexts},
+  //   );
+  //     return response.data as Map<String, dynamic>;
+  // }
+
+  Future<Map<String, dynamic>> parseReceipt(
+  List<String> rawTexts, {
+  List<Map<String, dynamic>>? pages,
+}) async {
+  final response = await _dio.post('/inventory/ocr-parse/', data: {
+    'raw_texts': rawTexts,
+    'ocr_pages': ?pages,
+  });
+  return response.data as Map<String, dynamic>;
+}
 
   // ─── Expense ─────────────────────────────────────────
   Future<List<dynamic>> getExpenses() async {
