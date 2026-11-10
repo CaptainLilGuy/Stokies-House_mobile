@@ -99,4 +99,6 @@ class InventoryProvider extends ChangeNotifier {
     selectedTagIds.clear();
     notifyListeners();
   }
+
+  void reset() { items = []; selectedTagIds.clear(); searchQuery = ''; selectedCategory = 'All'; notifyListeners(); }
 }

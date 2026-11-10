@@ -70,7 +70,7 @@ class DashboardProvider extends ChangeNotifier {
   double wasteLastValue = 0;
   int wasteUnvalued = 0;
   List<WasteItem> wasteItems = [];
-
+  bool isOwner = false;
   
 
   // ── derived values ──────────────────────────────────────
@@ -124,8 +124,8 @@ class DashboardProvider extends ChangeNotifier {
           .toList();
       final txns = results[2].map((j) => Map<String, dynamic>.from(j)).toList();
 
-      final b = await _storage.read(key: _budgetKey);
-      budget = b == null ? null : double.tryParse(b);
+      // final b = await _storage.read(key: _budgetKey);
+      // budget = b == null ? null : double.tryParse(b);
 
       _computeExpiring(items);
       _computeSpending(expenses);
@@ -195,6 +195,8 @@ class DashboardProvider extends ChangeNotifier {
   Future<void> _fetchInsights() async {
     try {
       final d = await ApiService().getDashboard();
+      budget = (d['budget'] as num?)?.toDouble();
+      isOwner = d['is_owner'] == true;
       priceChanges = (d['price_changes'] as List? ?? [])
           .map((j) => PriceChange.fromJson(Map<String, dynamic>.from(j)))
           .toList();
@@ -227,10 +229,13 @@ class DashboardProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> setBudget(double value) async {
+  Future<String?> setBudget(double value) async {
+    try {
+    await ApiService().setBudget(value);
     budget = value;
-    await _storage.write(key: _budgetKey, value: value.toStringAsFixed(0));
     notifyListeners();
+    return null;
+    } catch (e) { return parseApiError(e); }
   }
 
   void hide(String key) {
@@ -241,5 +246,12 @@ class DashboardProvider extends ChangeNotifier {
   void unhideAll() {
     hidden.clear();
     notifyListeners();
+  }
+
+  void reset() {
+  expiring = []; monthExpenses = []; spent = 0; budget = null; isOwner = false;
+  usageLogCount = 0; wastedThisMonth = 0; wastedLastMonth = 0; topUsed = [];
+  priceChanges = []; wasteValue = 0; wasteLastValue = 0; wasteUnvalued = 0; wasteItems = [];
+  hasLoaded = false; notifyListeners();
   }
 }

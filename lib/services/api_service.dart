@@ -246,6 +246,17 @@ Future<void> logUsage(int itemId, double qty,
     return res.data;
   }
 
+  Future<void> removeMember(int householdId, int userId) async =>
+    _dio.delete('/households/$householdId/members/$userId/');
+
+  Future<void> leaveHousehold() async => _dio.post('/households/leave/');
+
+  Future<void> transferOwnership(int householdId, int userId) async =>
+    _dio.post('/households/$householdId/transfer-owner/', data: {'user_id': userId});
+
+  Future<void> setBudget(double? value) =>
+  _dio.put('/households/me/budget/', data: {'monthly_budget': value});
+
   // ─── Others ───────────────────────────────────────────
 
   Future<bool> _tryRefreshToken() async {

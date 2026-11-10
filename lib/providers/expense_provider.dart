@@ -73,4 +73,6 @@ class ExpenseProvider extends ChangeNotifier {
     selectedMonth = DateTime(selectedMonth.year, selectedMonth.month + 1);
     notifyListeners();
   }
+
+  void reset() { expenses = []; notifyListeners(); }
 }

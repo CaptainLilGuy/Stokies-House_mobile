@@ -11,6 +11,18 @@ class HouseholdProvider extends ChangeNotifier {
 
   bool get hasHousehold => household != null;
 
+  Future<bool> _run(Future<void> Function() action, {bool refetch = true}) async {
+  try {
+    await action();
+    if (refetch) await fetchHousehold();
+    return true;
+  } catch (e) {
+    errorMessage = parseApiError(e);
+    notifyListeners();
+    return false;
+  }
+}
+
   Future<void> fetchHousehold() async {
     status = HouseholdStatus.loading;
     errorMessage = null;
@@ -68,4 +80,20 @@ class HouseholdProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> removeMember(int userId) =>
+    _run(() => ApiService().removeMember(household!.id, userId));
+
+  Future<bool> transferOwnership(int userId) =>
+    _run(() => ApiService().transferOwnership(household!.id, userId));
+
+  Future<bool> leave() async {
+  final ok = await _run(() => ApiService().leaveHousehold(), refetch: false);
+  if (ok) {
+    household = null;
+    status = HouseholdStatus.loaded;
+    notifyListeners();
+  }
+  return ok;
+}
 }
