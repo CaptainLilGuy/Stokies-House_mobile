@@ -145,7 +145,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
     );
-    if (value != null) await dp.setBudget(value);
+    if (value != null) {
+      final err = await dp.setBudget(value);
+      if (err != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+      }
+    }
   }
 
   void _explainSpending(DashboardProvider dp) {
@@ -170,7 +175,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         limitation:
             'Hanya mencakup pengeluaran yang tercatat di aplikasi. Belanja besar di awal bulan bisa memicu peringatan lebih cepat.',
         actions: [
-          SheetAction('Ubah budget', _editBudget, primary: true),
+          if(dp.isOwner) SheetAction('Ubah budget', _editBudget, primary: true),
           SheetAction('Sembunyikan insight', () => dp.hide('spending')),
         ],
       ),
@@ -370,11 +375,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               body: 'Tentukan batas belanja agar aplikasi bisa membandingkan laju pengeluaranmu.',
             ),
             const SizedBox(height: 12),
-            FilledButton(
+            if (dp.isOwner) FilledButton(
               onPressed: _editBudget,
               style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
               child: const Text('Atur budget'),
-            ),
+            )
+            else const Text('Minta owner rumah tangga untuk mengatur budget.',
+              style: TextStyle(fontSize: 13, color: _muted)),
           ],
         ),
       );

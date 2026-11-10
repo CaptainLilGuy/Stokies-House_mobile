@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:homeventory/constants.dart';
 import '../models/expense.dart';
 import '../models/inventory_item.dart';
@@ -49,8 +49,8 @@ class DashboardProvider extends ChangeNotifier {
   static const warnFromDay = 7;
   static const unlockLogCount = 5;
 
-  static const _budgetKey = 'monthly_budget'; // interim: move to Household
-  final _storage = const FlutterSecureStorage();
+  // static const _budgetKey = 'monthly_budget'; // interim: move to Household
+  // final _storage = const FlutterSecureStorage();
 
   bool isLoading = false;
   bool hasLoaded = false;

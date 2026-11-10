@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:homeventory/providers/dashboard_provider.dart';
+import 'package:homeventory/providers/expense_provider.dart';
+import 'package:homeventory/providers/inventory_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/household_provider.dart';
@@ -94,14 +97,27 @@ class _NoHouseholdState extends State<_NoHousehold> {
     super.dispose();
   }
 
+  Future<void> _resetOthers(Future<bool> Function() action) async {
+    final inv = context.read<InventoryProvider>();
+    final exp = context.read<ExpenseProvider>();
+    final dash = context.read<DashboardProvider>();
+    if (await action()) {
+      inv.reset();
+      exp.reset();
+      dash.reset();
+    }
+  }
+
   Future<void> _create() async {
     if (_nameCtrl.text.trim().isEmpty) return;
-    await context.read<HouseholdProvider>().createHousehold(_nameCtrl.text.trim());
+    await _resetOthers(() => 
+        context.read<HouseholdProvider>().createHousehold(_nameCtrl.text.trim()));
   }
 
   Future<void> _join() async {
     if (_codeCtrl.text.trim().isEmpty) return;
-    await context.read<HouseholdProvider>().joinHousehold(_codeCtrl.text.trim());
+    await _resetOthers(() => 
+        context.read<HouseholdProvider>().joinHousehold(_codeCtrl.text.trim()));
   }
 
   @override
@@ -293,17 +309,85 @@ class _HouseholdDetails extends StatelessWidget {
               style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 12),
 
-          ...household.members.map((m) => _MemberTile(member: m)),
+          ...household.members.map((m) => _MemberTile(
+            member: m,
+            canManage: household.isOwner && m.role != 'owner',
+            onRemove: () => _confirmRemove(context, m),
+            onMakeOwner: () => _confirmTransfer(context, m),
+          )),
+          const SizedBox(height: 24),
+          if (household.isOwner && household.members.length > 1)
+            const Text('To leave, first make another member the owner.',
+                style: TextStyle(fontSize: 12, color: Colors.grey))
+          else
+            OutlinedButton.icon(
+              icon: const Icon(Icons.logout),
+              label: const Text('Leave household'),
+              onPressed: () => _confirmLeave(context, household),
+            ),
         ],
       ),
     );
   }
 }
 
+Future<bool> _confirm(BuildContext c, String title, String body, String action) async =>
+    await showDialog<bool>(
+      context: c,
+      builder: (ctx) => AlertDialog(
+        title: Text(title), content: Text(body),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(action)),
+        ],
+      ),
+    ) ?? false;
+
+Future<void> _confirmRemove(BuildContext c, HouseholdMember m) async {
+  if (!await _confirm(c, 'Remove ${m.name}?',
+      // ignore: curly_braces_in_flow_control_structures
+      'They will lose access to this household\'s inventory.', 'Remove')) return;
+  if (!c.mounted) return;
+  await c.read<HouseholdProvider>().removeMember(m.id);
+}
+
+Future<void> _confirmTransfer(BuildContext c, HouseholdMember m) async {
+  if (!await _confirm(c, 'Make ${m.name} the owner?',
+      // ignore: curly_braces_in_flow_control_structures
+      'You will become a regular member.', 'Transfer')) return;
+  if (!c.mounted) return;
+  await c.read<HouseholdProvider>().transferOwnership(m.id);
+}
+
+Future<void> _confirmLeave(BuildContext c, Household h) async {
+  final alone = h.members.length == 1;
+  if (!await _confirm(c, 'Leave "${h.name}"?',
+      alone
+          ? 'You are the last member. The household and ALL its inventory will be deleted.'
+          : 'You will lose access to this household\'s inventory.',
+      // ignore: curly_braces_in_flow_control_structures
+      'Leave')) return;
+  if (!c.mounted) return;
+
+  final inv = c.read<InventoryProvider>();
+  final exp = c.read<ExpenseProvider>();
+  final dash = c.read<DashboardProvider>();
+
+  final ok = await c.read<HouseholdProvider>().leave();
+  if (ok) {
+    inv.reset();
+    exp.reset();
+    dash.reset();
+  }
+}
+
 class _MemberTile extends StatelessWidget {
   final HouseholdMember member;
-  const _MemberTile({required this.member});
-
+  final bool canManage;
+  final Future<void> Function() onRemove;
+  final Future<void> Function() onMakeOwner;
+  const _MemberTile({required this.member, required this.canManage, required this.onRemove, required this.onMakeOwner});
+  
   @override
   Widget build(BuildContext context) {
     final isOwner = member.role == 'owner';
@@ -340,7 +424,18 @@ class _MemberTile extends StatelessWidget {
                           color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w600)),
               )
-            : null,
+            : canManage
+              ? PopupMenuButton<String>(
+                onSelected: (v) {
+                  if (v == 'remove') onRemove();
+                  if (v == 'owner') onMakeOwner();
+                },
+                itemBuilder: (_) => const [
+                  PopupMenuItem(value: 'owner', child: Text('Make owner')),
+                  PopupMenuItem(value: 'remove', child: Text('Remove')),
+                ],
+              )
+              : null,
       ),
     );
   }
