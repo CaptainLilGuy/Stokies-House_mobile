@@ -129,7 +129,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
         source: TransactionSource.ocr,
         );
         final payload = item.toJson();
-        payload['tags.ids'] = _tags.map((t) => t.id).toList();
+        payload['tag.ids'] = _tags.map((t) => t.id).toList();
         final price = int.tryParse(_priceCtrl.text.trim());
         if (price != null) payload['unit_price'] = price;
         await ApiService().addItem(payload);
