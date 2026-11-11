@@ -126,7 +126,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
         expiryDate: _expiryDate,
         autoDecrementAmount: autoAmount,
         autoDecrementIntervalDays: autoInterval,
-        source: TransactionSource.ocr,
+        source: TransactionSource.manual,
         );
         final payload = item.toJson();
         payload['tag.ids'] = _tags.map((t) => t.id).toList();
