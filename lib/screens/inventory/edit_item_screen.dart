@@ -75,10 +75,19 @@ class _EditItemScreenState extends State<EditItemScreen> {
   }
 
   Future<void> _pickExpiry() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    final initialDate = _expiryDate != null
+      ? DateTime(_expiryDate!.year, _expiryDate!.month, _expiryDate!.year)
+      : today.add(const Duration(days: 7));
+
+    final firstDate = initialDate.isBefore(today) ? initialDate : today;
+
     final picked = await showDatePicker(
       context: context,
-      initialDate: _expiryDate ?? DateTime.now().add(const Duration(days: 7)), 
-      firstDate: DateTime.now(), 
+      initialDate: initialDate, 
+      firstDate: firstDate, 
       lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
       );
     if (picked != null) setState(() => _expiryDate = picked);
