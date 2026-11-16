@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../models/transaction_entry.dart';
 import '../../services/api_service.dart';
@@ -97,7 +98,13 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Riwayat transaksi')),
+      appBar: AppBar(
+        title: const Text('Riwayat transaksi'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/inventory'),
+        ),
+        ),
       body: Column(
         children: [
           SizedBox(
