@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Homeventory needs camera access to scan grocery receipts.</string>
+	<string>Stokies House memerlukan akses kamera untuk memindai struk belanja.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Homeventory needs photo library access to select receipt images.</string>
+	<string>Stokies House memerlukan akses galeri untuk memilih foto struk.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

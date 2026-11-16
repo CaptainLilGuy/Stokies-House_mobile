@@ -32,12 +32,12 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Household'),
+        title: const Text('Rumah Tangga'),
         centerTitle: false,
         actions: [
           IconButton(
           icon: Icon(Icons.logout),
-          tooltip: 'Log out',
+          tooltip: 'Keluar',
           onPressed: () async {
             await auth.logout();
             if (context.mounted) context .go('/login');
@@ -56,12 +56,12 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(hp.errorMessage ?? 'Something went wrong',
+                Text(hp.errorMessage ?? 'Terjadi kesalahan',
                     style: const TextStyle(color: Colors.red)),
                 const SizedBox(height: 12),
                 FilledButton(
                   onPressed: hp.fetchHousehold, 
-                  child: const Text('Retry'),
+                  child: const Text('Coba lagi'),
                 ),
               ],
             ),
@@ -144,22 +144,22 @@ class _NoHouseholdState extends State<_NoHousehold> {
           ),
           const SizedBox(height: 20),
           Center(
-            child: Text("You're not in a household yet",
+            child: Text("Kamu belum bergabung di rumah tangga",
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold)),
           ),
           const SizedBox(height: 36),
 
           // Create household
-          Text('Create a household',
+          Text('Buat rumah tangga',
               style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 10),
           TextField(
             controller: _nameCtrl,
             textCapitalization: TextCapitalization.words,
             decoration: const InputDecoration(
-              labelText: 'Household name',
-              hintText: 'e.g. Keluarga Santoso',
+              labelText: 'Nama rumah tangga',
+              hintText: 'mis. Keluarga Santoso',
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.home_outlined),
             ),
@@ -170,7 +170,7 @@ class _NoHouseholdState extends State<_NoHousehold> {
             child: FilledButton.icon(
               onPressed: hp.status == HouseholdStatus.loading ? null : _create, 
               icon: const Icon(Icons.add_home_outlined),
-              label: const Text('Create Household'),
+              label: const Text('Buat Rumah Tangga'),
             ),
           ),
 
@@ -181,7 +181,7 @@ class _NoHouseholdState extends State<_NoHousehold> {
             const Expanded(child: Divider()),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Text('or', style: TextStyle(color: Colors.grey.shade500)),  
+              child: Text('atau', style: TextStyle(color: Colors.grey.shade500)),  
             ),
             const Expanded(child: Divider()),
           ]),
@@ -190,15 +190,15 @@ class _NoHouseholdState extends State<_NoHousehold> {
 
 
           //Join household
-          Text('Join with invite code',
+          Text('Gabung dengan kode undangan',
               style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 10),
           TextField(
             controller: _codeCtrl,
             textCapitalization: TextCapitalization.characters,
             decoration: const InputDecoration(
-              labelText: 'Invite code',
-              hintText: 'e.g. AB12CD',
+              labelText: 'Kode undangan',
+              hintText: 'mis. AB12CD',
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.vpn_key_outlined),
             ),
@@ -209,7 +209,7 @@ class _NoHouseholdState extends State<_NoHousehold> {
             child: OutlinedButton.icon(
               onPressed: hp.status == HouseholdStatus.loading ? null : _join,
               icon: const Icon(Icons.group_add_outlined),
-              label: const Text('Join household'),
+              label: const Text('Gabung rumah tangga'),
             ),
           ),
 
@@ -259,7 +259,7 @@ class _HouseholdDetails extends StatelessWidget {
                           color: Theme.of(context).colorScheme.onPrimary)),
                 ]),
                 const SizedBox(height: 16),
-                Text('Invite code',
+                Text('Kode undangan',
                   style: TextStyle(
                     fontSize: 12,
                     // ignore: deprecated_member_use
@@ -281,17 +281,17 @@ class _HouseholdDetails extends StatelessWidget {
                   const SizedBox(width: 12),
                   IconButton(
                     icon: const Icon(Icons.copy),
-                    tooltip: 'Copy code',  
+                    tooltip: 'Salin kode',  
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: household.code));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Invite code copied!')),
+                        const SnackBar(content: Text('Kode undangan disalin!')),
                       );
                     },
                   ),
                 ]),
                 const SizedBox(height: 8),
-                Text('Share this code with family members to invite them.',
+                Text('Bagikan kode ini ke anggota keluarga untuk mengundang mereka.',
                     style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context)
@@ -305,7 +305,7 @@ class _HouseholdDetails extends StatelessWidget {
           const SizedBox(height: 28),
 
           // Member list
-          Text('Members (${household.members.length})',
+          Text('Anggota (${household.members.length})',
               style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 12),
 
@@ -317,12 +317,12 @@ class _HouseholdDetails extends StatelessWidget {
           )),
           const SizedBox(height: 24),
           if (household.isOwner && household.members.length > 1)
-            const Text('To leave, first make another member the owner.',
+            const Text('Untuk keluar, jadikan anggota lain sebagai pemilik terlebih dahulu.',
                 style: TextStyle(fontSize: 12, color: Colors.grey))
           else
             OutlinedButton.icon(
               icon: const Icon(Icons.logout),
-              label: const Text('Leave household'),
+              label: const Text('Keluar dari rumah tangga'),
               onPressed: () => _confirmLeave(context, household),
             ),
         ],
@@ -337,36 +337,36 @@ Future<bool> _confirm(BuildContext c, String title, String body, String action) 
       builder: (ctx) => AlertDialog(
         title: Text(title), content: Text(body),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Batal')),
           FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(action)),
         ],
       ),
     ) ?? false;
 
 Future<void> _confirmRemove(BuildContext c, HouseholdMember m) async {
-  if (!await _confirm(c, 'Remove ${m.name}?',
+  if (!await _confirm(c, 'Keluarkan ${m.name}?',
       // ignore: curly_braces_in_flow_control_structures
-      'They will lose access to this household\'s inventory.', 'Remove')) return;
+      'Mereka akan kehilangan akses ke inventaris rumah tangga ini.', 'Keluarkan')) return;
   if (!c.mounted) return;
   await c.read<HouseholdProvider>().removeMember(m.id);
 }
 
 Future<void> _confirmTransfer(BuildContext c, HouseholdMember m) async {
-  if (!await _confirm(c, 'Make ${m.name} the owner?',
+  if (!await _confirm(c, 'Jadikan ${m.name} sebagai pemilik?',
       // ignore: curly_braces_in_flow_control_structures
-      'You will become a regular member.', 'Transfer')) return;
+      'Kamu akan menjadi anggota biasa.', 'Alihkan')) return;
   if (!c.mounted) return;
   await c.read<HouseholdProvider>().transferOwnership(m.id);
 }
 
 Future<void> _confirmLeave(BuildContext c, Household h) async {
   final alone = h.members.length == 1;
-  if (!await _confirm(c, 'Leave "${h.name}"?',
+  if (!await _confirm(c, 'Keluar dari "${h.name}"?',
       alone
-          ? 'You are the last member. The household and ALL its inventory will be deleted.'
-          : 'You will lose access to this household\'s inventory.',
+          ? 'Kamu anggota terakhir. Rumah tangga beserta SELURUH inventarisnya akan dihapus.'
+          : 'Kamu akan kehilangan akses ke inventaris rumah tangga ini.',
       // ignore: curly_braces_in_flow_control_structures
-      'Leave')) return;
+      'Keluar')) return;
   if (!c.mounted) return;
 
   final inv = c.read<InventoryProvider>();
@@ -418,7 +418,7 @@ class _MemberTile extends StatelessWidget {
                     color: Theme.of(context).colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text('Owner',
+                child: Text('Pemilik',
                     style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).colorScheme.primary,
@@ -431,8 +431,8 @@ class _MemberTile extends StatelessWidget {
                   if (v == 'owner') onMakeOwner();
                 },
                 itemBuilder: (_) => const [
-                  PopupMenuItem(value: 'owner', child: Text('Make owner')),
-                  PopupMenuItem(value: 'remove', child: Text('Remove')),
+                  PopupMenuItem(value: 'owner', child: Text('Jadikan pemilik')),
+                  PopupMenuItem(value: 'remove', child: Text('Keluarkan')),
                 ],
               )
               : null,

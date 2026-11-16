@@ -8,17 +8,21 @@ import 'providers/household_provider.dart';
 import 'providers/dashboard_provider.dart';
 import 'services/api_service.dart';
 import 'router.dart';
-import 'constants.dart';
+// import 'constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'services/notification_service.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';  
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id_ID');
+  Intl.defaultLocale = 'id_ID';
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  // ignore: avoid_print
-  print('Using base URL: ${AppConstants.baseUrl}');
+  Intl.defaultLocale = 'id.ID';
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const HomeventoryApp());
 }
 
@@ -64,6 +68,13 @@ class _HomeventoryAppState extends State<HomeventoryApp> {
         ChangeNotifierProvider.value(value: _dashboardProvider)
       ],
       child: MaterialApp.router(
+        locale: const Locale('id', 'ID'),
+        supportedLocales: const [Locale('id', 'ID')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         scaffoldMessengerKey: _messengerKey,
         title: 'Homeventory',
         debugShowCheckedModeBanner: false,

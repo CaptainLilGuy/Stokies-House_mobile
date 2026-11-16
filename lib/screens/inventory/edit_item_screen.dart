@@ -31,6 +31,10 @@ class _EditItemScreenState extends State<EditItemScreen> {
   late bool _autoDecrementEnabled;
 
   static const _units = ['pcs', 'kg', 'g', 'L', 'mL', 'pack', 'box', 'bottle', 'can'];
+  static const _unitLabels = {
+    'pcs': 'pcs', 'kg': 'kg', 'g': 'g', 'L': 'L', 'mL': 'mL',
+    'pack': 'bungkus', 'box': 'kotak', 'bottle': 'botol', 'can': 'kaleng',
+  };
   List<Category> _categories = [];
   Category? _selectedCategory;
 
@@ -60,7 +64,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
         );
       });
     } catch (e) {
-      setState(() => _error = 'Failed to load categories');
+      setState(() => _error = 'Gagal memuat kategori');
     } finally {
       setState(() => _isLoadingCategories = false);
     }
@@ -79,7 +83,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
     final today = DateTime(now.year, now.month, now.day);
 
     final initialDate = _expiryDate != null
-      ? DateTime(_expiryDate!.year, _expiryDate!.month, _expiryDate!.year)
+      ? DateTime(_expiryDate!.year, _expiryDate!.month, _expiryDate!.day)
       : today.add(const Duration(days: 7));
 
     final firstDate = initialDate.isBefore(today) ? initialDate : today;
@@ -95,11 +99,11 @@ class _EditItemScreenState extends State<EditItemScreen> {
 
   Future<void> _submit() async {
     if (_nameCtrl.text.trim().isEmpty) {
-      setState(() => _error = "Name is required");
+      setState(() => _error = "Nama barang wajib diisi");
       return;
     }
     if (_selectedCategory == null) {
-      setState(() => _error = "Please select a category");
+      setState(() => _error = "Pilih kategori terlebih dahulu");
       return;
     }
 
@@ -107,11 +111,11 @@ class _EditItemScreenState extends State<EditItemScreen> {
     final int? autoInterval = int.tryParse(_autoIntervalCtrl.text.trim());
     if (_autoDecrementEnabled){
       if (autoAmount == null || autoAmount < 0) {
-        setState(() => _error = 'Enter a valid auto-decrement amount');
+        setState(() => _error = 'Masukkan jumlah pengurangan otomatis yang valid');
         return;
       }
       if (autoInterval == null || autoInterval < 0) {
-        setState(() => _error = 'Enter a valid auto-interval amount');
+        setState(() => _error = 'Masukkan interval (hari) yang valid');
         return;
       }
     }
@@ -152,7 +156,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Item'),
+        title: const Text('Ubah Barang'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/inventory'),
@@ -163,7 +167,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _SectionLabel('Item Name'),
+            _SectionLabel('Nama barang'),
             TextField(
               controller: _nameCtrl,
               textCapitalization: TextCapitalization.sentences,
@@ -174,18 +178,18 @@ class _EditItemScreenState extends State<EditItemScreen> {
             ),
             const SizedBox(height: 20),
 
-            _SectionLabel('Unit'),
+            _SectionLabel('Satuan'),
             DropdownButtonFormField<String>(
               initialValue: _unit,
               decoration: const InputDecoration(border: OutlineInputBorder()),
               items: _units
-              .map((u) => DropdownMenuItem(value: u, child: Text(u)))
+              .map((u) => DropdownMenuItem(value: u, child: Text(_unitLabels[u] ?? u)))
               .toList(), 
               onChanged: (val) => setState(() => _unit = val!),
             ),
             const SizedBox(height: 20),
 
-            _SectionLabel('Category'),
+            _SectionLabel('Kategori'),
             _isLoadingCategories
               ? const CircularProgressIndicator()
               : DropdownButtonFormField<Category>(
@@ -197,14 +201,14 @@ class _EditItemScreenState extends State<EditItemScreen> {
               ),
             const SizedBox(height: 20),
 
-            _SectionLabel('Tags'),
+            _SectionLabel('Tag'),
             TagSelector(
               selected: _tags, 
               onChanged: (v) => setState(() => _tags = v),
               ),
             const SizedBox(height: 20),
             
-            _SectionLabel('Expiry Date (Optional)'),
+            _SectionLabel('Tanggal kedaluwarsa (opsional)'),
             InkWell(
               onTap: _pickExpiry,
               borderRadius: BorderRadius.circular(8),
@@ -222,7 +226,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
                     Text(
                       _expiryDate != null
                         ? DateFormat('d MMMM yyyy').format(_expiryDate!)
-                        : 'Tap to select a date',
+                        : 'Ketuk untuk memilih tanggal',
                       style: TextStyle(
                         color: _expiryDate != null ? Colors.black87 : Colors.grey,
                         fontSize: 15,
@@ -240,9 +244,9 @@ class _EditItemScreenState extends State<EditItemScreen> {
             ),
             const SizedBox(height: 28),
 
-            _SectionLabel('Auto Decrement (optional)'),
+            _SectionLabel('Pengurangan otomatis (opsional)'),
             SwitchListTile(
-              title: const Text('Enable auto decrement'),
+              title: const Text('Aktifkan pengurangan otomatis'),
               controlAffinity: ListTileControlAffinity.leading,
               value: _autoDecrementEnabled, 
               onChanged: (val) => setState(() => _autoDecrementEnabled = val),
@@ -255,12 +259,12 @@ class _EditItemScreenState extends State<EditItemScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _SectionLabel('Amount per Interval'),
+                        _SectionLabel('Jumlah per interval'),
                         TextField(
                           controller: _autoAmountCtrl,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           decoration: const InputDecoration(
-                            labelText: 'Amount',
+                            labelText: 'Jumlah',
                             border: OutlineInputBorder(),
                           ),
                         ),
@@ -272,12 +276,12 @@ class _EditItemScreenState extends State<EditItemScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _SectionLabel('Interval durations'),
+                        _SectionLabel('Durasi interval'),
                         TextField(
                           controller: _autoIntervalCtrl,
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
-                            labelText: 'Every ___ days',
+                            labelText: 'Setiap ___ hari',
                             border: OutlineInputBorder(),
                           ),
                         )
@@ -304,7 +308,7 @@ class _EditItemScreenState extends State<EditItemScreen> {
                   width: 18, height: 18,
                   child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                 : const Icon(Icons.check),
-                label: Text(_isSubmitting ? 'Saving...' : 'Save Changes'),
+                label: Text(_isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan'),
               ),
             ),
           ],

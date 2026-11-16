@@ -18,7 +18,7 @@ class ReceiptSubmitSummaryScreen extends StatelessWidget {
     final failed = results.where((r) => r['success'] != true).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Receipt Import Summary')),
+      appBar: AppBar(title: const Text('Ringkasan Impor Struk')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -37,7 +37,7 @@ class ReceiptSubmitSummaryScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    '${succeeded.length} of ${results.length} item(s) saved successfully.',
+                    '${succeeded.length} dari ${results.length} barang berhasil disimpan.',
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -54,9 +54,9 @@ class ReceiptSubmitSummaryScreen extends StatelessWidget {
                   ),
                   title: Text(r['name'] as String),
                   subtitle: r['success'] == true
-                      ? Text(r['action'] == 'restocked' ? 'Restocked' : 'Added as new item')
+                      ? Text(r['action'] == 'restocked' ? 'Stok ditambah' : 'Ditambahkan sebagai barang baru')
                       : Text(
-                          'Failed to ${r['action']}: ${r['error']}',
+                          'Gagal ${r['action'] == 'restock' ? 'menambah stok' : 'menambah barang'}: ${r['error']}',
                           style: const TextStyle(color: Colors.red, fontSize: 12),
                         ),
                 ),
@@ -67,14 +67,14 @@ class ReceiptSubmitSummaryScreen extends StatelessWidget {
             width: double.infinity,
             child: OutlinedButton.icon(
               icon: const Icon(Icons.receipt_long_outlined),
-              label: const Text('Log as Expense'),
+              label: const Text('Catat sebagai Pengeluaran'),
               onPressed: (){
                 DateTime? parsedDate;
                 if (date != null && date!.isNotEmpty) {
                   parsedDate = _tryParseReceiptDate(date!);
                 }
                 context.push('/inventory/add-expense', extra: {
-                  'description': 'Groceries (from receipt scan)',
+                  'description': 'Belanja (dari scan struk)',
                   'amount': total!.toDouble(),
                   'date': parsedDate ?? DateTime.now(),
                   'source': 'ocr',
@@ -86,7 +86,7 @@ class ReceiptSubmitSummaryScreen extends StatelessWidget {
             width: double.infinity,
             child: FilledButton(
               onPressed: () => context.go('/inventory'),
-              child: const Text('Back to Inventory'),
+              child: const Text('Kembali ke Inventaris'),
             ),
           ),
         ],

@@ -40,14 +40,14 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inventory'),
+        title: const Text('Inventaris'),
         centerTitle: false,
         actions: [
           IconButton(
             onPressed: () => context.go('/household'), 
             icon: const Icon(Icons.home_outlined)),
           IconButton(
-            tooltip: 'Manage tags',
+            tooltip: 'Kelola tag',
             onPressed: () => context.push('/inventory/tags'), 
             icon: const Icon(Icons.sell_outlined)),
           IconButton(
@@ -65,7 +65,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
               controller: _searchCtrl,
               onChanged: inv.setSearch,
               decoration: InputDecoration(
-                hintText: 'Search Items...',
+                hintText: 'Cari barang...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -94,7 +94,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                 final cat = inv.categories[i];
                 final selected = inv.selectedCategory == cat;
                 return FilterChip(
-                  label: Text(cat),
+                  label: Text(cat == 'All' ? 'Semua' : cat),
                   selected: selected,
                   onSelected: (_) => inv.setCategory(cat),
                 );
@@ -138,14 +138,14 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
                             const SizedBox(height: 12),
                             FilledButton(
                               onPressed: inv.fetchItems, 
-                              child: const Text('Retry'),
+                              child: const Text('Coba lagi'),
                               ),
                           ],
                         ),
                       )
                     : inv.filtered.isEmpty 
                       ? const Center(
-                        child: Text('No Items Found.',
+                        child: Text('Barang tidak ditemukan.',
                           style: TextStyle(color: Colors.green)))
                       : RefreshIndicator(
                           onRefresh: inv.fetchItems,
@@ -207,15 +207,15 @@ class _ItemTile extends StatelessWidget {
               final confirmed = await showDialog<bool>(
                 context: context, 
                 builder: (ctx) => AlertDialog(
-                  title: const Text('Delete item?'),
-                  content: Text('Remove "${item.name}" from inventory?'),
+                  title: const Text('Hapus barang?'),
+                  content: Text('Hapus "${item.name}" dari inventaris?'),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(ctx, false), 
-                      child: const Text('Cancel')),
+                      child: const Text('Batal')),
                     FilledButton(
                       onPressed: () => Navigator.pop(ctx, true), 
-                      child: const Text('Delete')),
+                      child: const Text('Hapus')),
                   ],
                 ),
               );
@@ -224,7 +224,7 @@ class _ItemTile extends StatelessWidget {
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
             icon: Icons.delete_outline,
-            label: 'Delete',
+            label: 'Hapus',
             )
         ],
       ),
@@ -243,7 +243,7 @@ class _ItemTile extends StatelessWidget {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('${item.quantity} ${item.unit}  ·  ${item.categoryName ?? 'Unrecognized'}'),
+              Text('${item.quantity} ${item.unit}  ·  ${item.categoryName ?? 'Tanpa kategori'}'),
               if (item.tags.isNotEmpty)
                 Text(
                   item.tags.map((t) => '#${t.name}').join(' '),
@@ -255,8 +255,8 @@ class _ItemTile extends StatelessWidget {
               if (item.expiryDate != null)
                 Text(
                   _isExpired
-                    ? 'Expired ${DateFormat('d MMM').format(item.expiryDate!)}'
-                    : 'Expires ${DateFormat('d MMM').format(item.expiryDate!)}',
+                    ? 'Sudah kedaluwarsa ${DateFormat('d MMM').format(item.expiryDate!)}'
+                    : 'Kedaluwarsa ${DateFormat('d MMM').format(item.expiryDate!)}',
                   style: TextStyle(
                     fontSize: 12,
                     color: _isExpired
@@ -319,7 +319,7 @@ class _RestockSheetContentState extends State<_RestockSheetContent> {
     final qty = double.tryParse(_qtyCtrl.text.trim());
     final price = int.tryParse(_priceCtrl.text.trim());
     if (qty == null || qty == 0) {
-      setState(() => _error = 'Enter a valid amount');
+      setState(() => _error = 'Masukkan jumlah yang valid');
       return;
     }
     setState(() {
@@ -362,7 +362,7 @@ class _RestockSheetContentState extends State<_RestockSheetContent> {
             ),
           ],
         ),
-          Text('Currently: ${widget.item.quantity} ${widget.item.unit}  ${widget.item.lastUnitPrice}',
+          Text('Saat ini: ${widget.item.quantity} ${widget.item.unit}',
               style: const TextStyle(color: Colors.grey, fontSize: 13)),
           const SizedBox(height: 16),
           TextField(
@@ -372,7 +372,7 @@ class _RestockSheetContentState extends State<_RestockSheetContent> {
               FilteringTextInputFormatter.digitsOnly,
             ],
             decoration: InputDecoration(
-              labelText: 'Amount to add',
+              labelText: 'Jumlah yang ditambah',
               suffixText: widget.item.unit,
               border: const OutlineInputBorder(),
             ),
@@ -386,7 +386,7 @@ class _RestockSheetContentState extends State<_RestockSheetContent> {
             ],
             
             decoration: const InputDecoration(
-              labelText: 'Price',
+              labelText: 'Harga per satuan',
               border: OutlineInputBorder(),
             ),
           ),
@@ -394,7 +394,7 @@ class _RestockSheetContentState extends State<_RestockSheetContent> {
           TextField(
             controller: _noteCtrl,
             decoration: const InputDecoration(
-              labelText: 'Note (optional)',
+              labelText: 'Catatan (opsional)',
               border: OutlineInputBorder(),
             ),
           ),
@@ -412,7 +412,7 @@ class _RestockSheetContentState extends State<_RestockSheetContent> {
                   ? const SizedBox(
                       width: 18, height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Confirm Restock'),
+                  : const Text('Konfirmasi Restock'),
             ),
           ),
         ],

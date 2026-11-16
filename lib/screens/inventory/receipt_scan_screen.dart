@@ -44,7 +44,7 @@ class _ReceiptScanScreenState extends State<ReceiptScanScreen> {
           source: ImageSource.camera, imageQuality: 85);
       if (picked != null) _append([picked]);
     } catch (e) {
-      _snack('Could not access camera: $e');
+      _snack('Tidak dapat mengakses kamera: $e');
     }
   }
 
@@ -62,7 +62,7 @@ class _ReceiptScanScreenState extends State<ReceiptScanScreen> {
       }
       _append(picked);
     } catch (e) {
-      _snack('Could not access gallery: $e');
+      _snack('Tidak dapat mengakses galeri: $e');
     }
   }
 
@@ -74,12 +74,12 @@ class _ReceiptScanScreenState extends State<ReceiptScanScreen> {
         child: Wrap(children: [
           ListTile(
             leading: const Icon(Icons.camera_alt_outlined),
-            title: const Text('Take photo'),
+            title: const Text('Ambil foto'),
             onTap: () { Navigator.pop(ctx); _addFromCamera(); },
           ),
           ListTile(
             leading: const Icon(Icons.photo_library_outlined),
-            title: const Text('Choose from gallery'),
+            title: const Text('Pilih dari galeri'),
             onTap: () { Navigator.pop(ctx); _addFromGallery(); },
           ),
         ]),
@@ -139,7 +139,7 @@ class _ReceiptScanScreenState extends State<ReceiptScanScreen> {
         context.push('/inventory/scan-receipt/review', extra: parsedData);
       }
     } catch (e) {
-      _snack('Something went wrong: $e');
+      _snack('Terjadi kesalahan: $e');
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
@@ -155,7 +155,7 @@ class _ReceiptScanScreenState extends State<ReceiptScanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scan Receipt'),
+        title: const Text('Scan Struk'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/inventory'),
@@ -175,26 +175,26 @@ class _ReceiptScanScreenState extends State<ReceiptScanScreen> {
             const Icon(Icons.receipt_long_outlined, size: 72, color: Colors.grey),
             const SizedBox(height: 16),
             const Text(
-              'Take a photo of your receipt, or choose one from your gallery.',
+              'Foto struk belanjamu, atau pilih dari galeri.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 12),
             _tipBox(
-              'Tip: make sure item names, quantities, and prices are all fully visible. '
-              'Long receipt? You can add up to $_maxPhotos photos, top to bottom, '
-              'overlapping by 2–3 items.',
+              'Tips: pastikan nama barang, jumlah, dan harga terlihat jelas. '
+              'Struk panjang? Kamu bisa menambah hingga $_maxPhotos foto, dari atas ke bawah, '
+              'dengan 2–3 barang yang saling tumpang tindih.',
             ),
             const SizedBox(height: 32),
             ElevatedButton.icon(
               icon: const Icon(Icons.camera_alt),
-              label: const Text('Take photo'),
+              label: const Text('Ambil foto'),
               onPressed: _addFromCamera,
             ),
             const SizedBox(height: 12),
             OutlinedButton.icon(
               icon: const Icon(Icons.photo_library_outlined),
-              label: const Text('Choose from gallery'),
+              label: const Text('Pilih dari galeri'),
               onPressed: _addFromGallery,
             ),
           ],
@@ -300,8 +300,8 @@ class _ReceiptScanScreenState extends State<ReceiptScanScreen> {
               Expanded(
                 child: Text(
                   _images.length > 1
-                      ? 'Photos are read in order, top to bottom. Overlapping items are merged automatically.'
-                      : 'Check: names, quantities, and prices are all fully in frame?',
+                      ? 'Foto dibaca berurutan dari atas ke bawah. Barang yang tumpang tindih digabung otomatis.'
+                      : 'Cek: nama, jumlah, dan harga sudah terlihat semua?',
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
               ),
@@ -316,7 +316,7 @@ class _ReceiptScanScreenState extends State<ReceiptScanScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     icon: const Icon(Icons.add_a_photo_outlined, size: 18),
-                    label: Text('Add photo (${_images.length}/$_maxPhotos)'),
+                    label: Text('Tambah foto (${_images.length}/$_maxPhotos)'),
                     onPressed: _isProcessing ? null : _showAddSheet,
                   ),
                 ),
@@ -330,8 +330,8 @@ class _ReceiptScanScreenState extends State<ReceiptScanScreen> {
                           height: 18, width: 18,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                       : Text(_images.length == 1
-                          ? 'Use this photo'
-                          : 'Use ${_images.length} photos'),
+                          ? 'Pakai foto ini'
+                          : 'Pakai ${_images.length} foto'),
                 ),
               ),
             ],

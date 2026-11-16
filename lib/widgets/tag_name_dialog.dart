@@ -36,7 +36,7 @@ class _TagNameDialogState extends State<_TagNameDialog> {
   void _submit(){
     final name = _ctrl.text.trim().replaceAll(RegExp(r'\s+'), '');
     if (name.isEmpty){
-      setState(() => _error = 'Tag name is required');
+      setState(() => _error = 'Nama tag wajib diisi');
       return;
     }
     Navigator.pop(context, name);
@@ -52,7 +52,7 @@ class _TagNameDialogState extends State<_TagNameDialog> {
         maxLength: 300, //SAMAIN KAYAK DI BACKEND
         onSubmitted: (_) => _submit(),
         decoration: InputDecoration(
-          hintText: 'e.g. kulkas, dapur, dipakai dulu',
+          hintText: 'mis. kulkas, dapur, dipakai dulu',
           border: const OutlineInputBorder(),
           errorText: _error,
         ),
@@ -60,7 +60,7 @@ class _TagNameDialogState extends State<_TagNameDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context), 
-          child: const Text('Cancel')),
+          child: const Text('Batal')),
         FilledButton(onPressed: _submit, child: Text(widget.confirmLabel)),
       ],
     );

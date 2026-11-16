@@ -33,6 +33,10 @@ class _AddItemScreenState extends State<AddItemScreen>{
   bool _autoDecrementEnabled = false;
 
   static const _units = ['pcs', 'kg', 'g', 'L', 'mL', 'pack', 'box', 'bottle', 'can'];
+  static const _unitLabels = {
+    'pcs': 'pcs', 'kg': 'kg', 'g': 'g', 'L': 'L', 'mL': 'mL',
+    'pack': 'bungkus', 'box': 'kotak', 'bottle': 'botol', 'can': 'kaleng',
+  };
   List<Category> _categories = [];
   Category? _selectedCategory;
   
@@ -61,7 +65,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
         _categories = cats;
       });
     } catch (e) {
-      setState(() => _error = 'Failed to load categories.');
+      setState(() => _error = 'Gagal memuat kategori.');
     } finally {
       setState(() => _isLoadingCategories = false);
     }
@@ -80,21 +84,21 @@ class _AddItemScreenState extends State<AddItemScreen>{
   Future<void> _submit() async {
 
     if (_nameCtrl.text.trim().isEmpty) {
-      setState(() => _error = 'Item is required.');
+      setState(() => _error = 'Nama barang wajib diisi.');
       return;
     }
     if (_quantityCtrl.text.trim().isEmpty) {
-      setState(() => _error = 'Quantity is required.');
+      setState(() => _error = 'Jumlah wajib diisi.');
       return;
     }
     final qty = double.tryParse(_quantityCtrl.text.trim());
     if (qty == null || qty <= 0) {
-      setState(() => _error = 'Enter a valid quantity.');
+      setState(() => _error = 'Masukkan jumlah yang valid.');
       return;
     }
 
     if (_selectedCategory == null) {
-      setState(() => _error = 'Please select a category.');
+      setState(() => _error = 'Pilih kategori terlebih dahulu.');
       return;
     }
 
@@ -102,11 +106,11 @@ class _AddItemScreenState extends State<AddItemScreen>{
     final int? autoInterval = int.tryParse(_autoIntervalCtrl.text.trim());
     if (_autoDecrementEnabled) {
       if (autoAmount == null || autoAmount <= 0) {
-        setState(() => _error = 'Enter a valid auto-decrement amount.');
+        setState(() => _error = 'Masukkan jumlah pengurangan otomatis yang valid.');
         return;
       }
       if (autoInterval == null || autoInterval <= 0) {
-        setState(() => _error = 'Enter a valid auto-decrement interval in days.');
+        setState(() => _error = 'Masukkan interval pengurangan otomatis (hari) yang valid.');
         return;
       }
     }
@@ -129,7 +133,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
         source: TransactionSource.manual,
         );
         final payload = item.toJson();
-        payload['tag.ids'] = _tags.map((t) => t.id).toList();
+        payload['tag_ids'] = _tags.map((t) => t.id).toList();
         final price = int.tryParse(_priceCtrl.text.trim());
         if (price != null) payload['unit_price'] = price;
         await ApiService().addItem(payload);
@@ -151,7 +155,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Item'),
+        title: const Text('Tambah Barang'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/inventory'),
@@ -164,12 +168,12 @@ class _AddItemScreenState extends State<AddItemScreen>{
           children: [
 
             // Item name
-            _SectionLabel('Item name'),
+            _SectionLabel('Nama barang'),
             TextField(
               controller: _nameCtrl,
               textCapitalization: TextCapitalization.sentences,
               decoration: const InputDecoration(
-                hintText: 'e.g. Indomie Goreng',
+                hintText: 'mis. Indomie Goreng',
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.inventory_2_outlined),
               ),
@@ -177,7 +181,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
             const SizedBox(height: 20),
 
             //Quantity + unit (side by side)
-            _SectionLabel('Quantity & Unit'),
+            _SectionLabel('Jumlah & Satuan'),
             Row(
               children: [
                 Expanded(
@@ -201,7 +205,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
                     initialValue: _unit,
                     decoration: const InputDecoration(border: OutlineInputBorder()),
                     items: _units
-                          .map((u) => DropdownMenuItem(value: u, child: Text(u)))
+                          .map((u) => DropdownMenuItem(value: u, child: Text(_unitLabels[u] ?? u)))
                           .toList(),
                     onChanged: (val) => setState(() => _unit = val!),
                     ),
@@ -220,7 +224,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
               const SizedBox(height: 20),
 
               //Category
-              _SectionLabel('Category'),
+              _SectionLabel('Kategori'),
               ButtonTheme(
                 alignedDropdown: true,
                 child: 
@@ -229,7 +233,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
                   : DropdownButtonFormField<Category>(
                       initialValue: _selectedCategory,
                       isExpanded: true,
-                      hint: const Text("Select a category"),
+                      hint: const Text("Pilih kategori"),
                       decoration: const InputDecoration(border: OutlineInputBorder()),
                       items: _categories
                         .map((cat) => DropdownMenuItem(
@@ -242,12 +246,12 @@ class _AddItemScreenState extends State<AddItemScreen>{
               const SizedBox(height: 10),
               ListTile(
                 leading: const Icon(Icons.label_outline),
-                title: const Text('Manage Categories'),
+                title: const Text('Kelola Kategori'),
                 onTap: () => context.go('/inventory/categories'),
               ),
               const SizedBox(height: 20),
 
-              _SectionLabel('Tags (optional)'),
+              _SectionLabel('Tag (opsional)'),
               TagSelector(
                 selected: _tags, 
                 onChanged: (v) => setState(() => _tags = v),
@@ -255,7 +259,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
               const SizedBox(height: 20),
 
               //Expiry date
-              _SectionLabel('Expiry date (optional)'),
+              _SectionLabel('Tanggal kedaluwarsa (opsional)'),
               InkWell(
                 onTap: _pickExpiry,
                 borderRadius: BorderRadius.circular(8),
@@ -273,7 +277,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
                       Text(
                         _expiryDate != null
                            ? DateFormat('d MMMM yyyy').format(_expiryDate!)
-                           : 'Tap to select a date',
+                           : 'Ketuk untuk memilih tanggal',
                         style: TextStyle(
                           color: _expiryDate != null ? Colors.black87 : Colors.grey,
                           fontSize: 15,
@@ -292,9 +296,9 @@ class _AddItemScreenState extends State<AddItemScreen>{
               const SizedBox(height: 28),
 
               //AutoDecrement
-              _SectionLabel('Auto decrement (optional)'),
+              _SectionLabel('Pengurangan otomatis (opsional)'),
               SwitchListTile(
-                title: const Text("Enable auto decrement"),
+                title: const Text("Aktifkan pengurangan otomatis"),
                 controlAffinity: ListTileControlAffinity.leading,
                 value: _autoDecrementEnabled, 
                 onChanged: (val) => setState(() => _autoDecrementEnabled = val),
@@ -307,12 +311,12 @@ class _AddItemScreenState extends State<AddItemScreen>{
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _SectionLabel('Amount per Interval'),
+                          _SectionLabel('Jumlah per interval'),
                           TextField(
                             controller: _autoAmountctrl,
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             decoration: const InputDecoration(
-                              labelText: 'Amount',
+                              labelText: 'Jumlah',
                               border: OutlineInputBorder(),
                             ),
                           ),
@@ -324,12 +328,12 @@ class _AddItemScreenState extends State<AddItemScreen>{
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _SectionLabel("Interval durations"),
+                          _SectionLabel("Durasi interval"),
                           TextField(
                             controller: _autoIntervalCtrl,
                             keyboardType: TextInputType.number,
                             decoration: const InputDecoration(
-                              labelText: 'Every ___ days',
+                              labelText: 'Setiap ___ hari',
                               border: OutlineInputBorder(),
                             ),
                           ),
@@ -358,7 +362,7 @@ class _AddItemScreenState extends State<AddItemScreen>{
                           width: 18, height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                         : const Icon(Icons.check),
-                    label: Text(_isSubmitting? 'Saving...' : 'Save item'),
+                    label: Text(_isSubmitting? 'Menyimpan...' : 'Simpan barang'),
                   ),
                 ),
             ],

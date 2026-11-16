@@ -43,7 +43,7 @@ class _TagManagementScreenState extends State<TagManagementScreen> {
       final tags = await ApiService().getTags();
       if (mounted) setState(() => _tags = tags);
     } catch (e) {
-      if (mounted) setState(() => _error = 'Failed to load tags');
+      if (mounted) setState(() => _error = 'Gagal memuat tag');
     } finally {
       if (mounted) setState(() => _isLoading = false); 
     }
@@ -70,7 +70,7 @@ class _TagManagementScreenState extends State<TagManagementScreen> {
 
   Future<void> _renameTag(Tag tag) async {
     final name = await showTagNameDialog(context, 
-      title: 'Rename tag', initial: tag.name);
+      title: 'Ubah nama tag', initial: tag.name, confirmLabel: 'Simpan');
     if (name == null || name == tag.name || !mounted) return;
     try {
       await ApiService().renameTag(tag.id, name);
@@ -84,18 +84,18 @@ class _TagManagementScreenState extends State<TagManagementScreen> {
     final confirmed = await showDialog<bool>(
       context: context, 
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Tag?'),
+        title: const Text('Hapus Tag?'),
         content: Text(
-          'Remove "${tag.name}"? It will be taken off ${tag.itemCount} item(s). '
-          'The items themselves are not deleted.',
+          'Hapus "${tag.name}"? Tag akan dilepas dari ${tag.itemCount} barang. '
+          'Barangnya sendiri tidak ikut terhapus.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false), 
-            child: const Text('Cancel')),
+            child: const Text('Batal')),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true), 
-            child: const Text('Delete')),
+            child: const Text('Hapus')),
         ],
       ),
     );
@@ -106,14 +106,14 @@ class _TagManagementScreenState extends State<TagManagementScreen> {
       await _loadTags();
       if (mounted) _refreshInventory();
     } catch (e) {
-      if (mounted) setState(() => _error = 'Failed to delete Tag');
+      if (mounted) setState(() => _error = 'Gagal menghapus tag');
     }
   }
 
   @override 
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tags')),
+      appBar: AppBar(title: const Text('Tag')),
       body: Column(
         children: [
           Padding(
@@ -125,7 +125,7 @@ class _TagManagementScreenState extends State<TagManagementScreen> {
                     controller: _nameCtrl,
                     maxLength: 50,
                     decoration: const InputDecoration(
-                      hintText: 'New tag name',
+                      hintText: 'Nama tag baru',
                       counterText: '',
                       border: OutlineInputBorder(),
                     ),
@@ -159,7 +159,7 @@ class _TagManagementScreenState extends State<TagManagementScreen> {
             child: _isLoading
               ? const Center(child: CircularProgressIndicator())
               : _tags.isEmpty
-                ? const Center(child: Text('No tags yet'))
+                ? const Center(child: Text('Belum ada tag'))
                 : ListView.builder(
                   itemCount: _tags.length,
                   itemBuilder: (ctx, i) {
@@ -174,14 +174,14 @@ class _TagManagementScreenState extends State<TagManagementScreen> {
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,
                             icon: Icons.delete_outline,
-                            label: 'Delete',
+                            label: 'Hapus',
                           ),
                         ],
                       ),
                       child: ListTile(
                         leading: const Icon(Icons.sell_outlined),
                         title: Text(tag.name),
-                        subtitle: Text('${tag.itemCount} item(s)'),
+                        subtitle: Text('${tag.itemCount} barang'),
                         trailing: const Icon(Icons.edit_outlined, size: 18),
                         onTap: () => _renameTag(tag),
                       ),

@@ -298,22 +298,22 @@ String parseApiError(dynamic error) {
       if (data.containsKey('detail')) return data['detail'];
       final firstKey = data.keys.first;
       final firstVal = data[firstKey];
-      if (firstVal is List) return '$firstKey: ${firstVal.join(', ')}';
+      if (firstVal is List) return firstVal.join(', ');
       return firstVal.toString();
     }
 
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
-        return 'Connection timed out. Check your server.';
+        return 'Koneksi habis waktu. Periksa internet atau server.';
       case DioExceptionType.connectionError:
-        return 'Connection error: ${error.message}';
+        return 'Gagal terhubung ke server.';
       case DioExceptionType.receiveTimeout:
-        return 'Server took too long to respond.';
+        return 'Server terlalu lama merespons.';
       case DioExceptionType.badResponse:
-        return 'Server error (${error.response?.statusCode}).';
+        return 'Terjadi kesalahan server (${error.response?.statusCode}).';
       default:
-        return 'Network error: ${error.type} — ${error.message} — underlying: ${error.error}';
+        return 'Kesalahan jaringan. Coba lagi.';
     }
   }
-  return 'Non-network error: ${error.runtimeType} — $error';
+  return 'Terjadi kesalahan tak terduga.';
 }

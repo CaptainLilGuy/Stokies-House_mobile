@@ -37,7 +37,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen>{
       final cats = await ApiService().getCategories();
       setState(() => _categories = cats);
     } catch (e) {
-      setState(() => _error = 'Failed to load categories');
+      setState(() => _error = 'Gagal memuat kategori');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -53,7 +53,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen>{
       _nameCtrl.clear();
       await _loadCategories();
     } catch (e) {
-      setState(() => _error = 'Failed to add category');
+      setState(() => _error = 'Gagal menambah kategori');
     } finally {
       setState(() => _isAdding = false);
     }
@@ -63,16 +63,16 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen>{
     final confirmed = await showDialog<bool>(
       context: context, 
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Category?'),
-        content: Text('Remove "$name"? Items in this category will be uncategorized.'),
+        title: const Text('Hapus Kategori?'),
+        content: Text('Hapus "$name"? Barang di kategori ini akan menjadi tanpa kategori.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false), 
-            child: const Text('Cancel'),
+            child: const Text('Batal'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true), 
-            child: const Text('Delete'),
+            child: const Text('Hapus'),
           ),
         ],
       ),
@@ -84,7 +84,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen>{
       await ApiService().deleteCategory(id);
       await _loadCategories();
     } catch (e) {
-      setState(() => _error = 'Failed to delete category');
+      setState(() => _error = 'Gagal menghapus kategori');
     }
 
   }
@@ -93,7 +93,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen>{
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Categories'),
+        title: const Text('Kategori'),
         leading: IconButton(
          icon: Icon(Icons.arrow_back),
          onPressed: () => context.go('/inventory/add'),
@@ -110,7 +110,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen>{
                     controller: _nameCtrl,
                     textCapitalization: TextCapitalization.sentences,
                     decoration: const InputDecoration(
-                      hintText: 'New Category Name',
+                      hintText: 'Nama kategori baru',
                       border: OutlineInputBorder(),
                     ),
                     onSubmitted: (_) => _addCategory(),
@@ -146,7 +146,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen>{
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _categories.isEmpty
-                    ? const Center(child: Text('No categories yet.'))
+                    ? const Center(child: Text('Belum ada kategori.'))
                     : ListView.builder(
                         itemCount:  _categories.length,
                         itemBuilder: (ctx, i) {
@@ -161,7 +161,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen>{
                                   backgroundColor: Colors.red,
                                   foregroundColor: Colors.white,
                                   icon: Icons.delete_outline,
-                                  label: 'Delete',
+                                  label: 'Hapus',
                                   ),
                                 ],
                               ),

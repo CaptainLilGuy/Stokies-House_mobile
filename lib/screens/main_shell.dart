@@ -17,8 +17,8 @@ class MainShell extends StatelessWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt_outlined),
-              title: const Text('Scan Receipt'),
-              subtitle: const Text('Auto-fill from a photo of a receipt'),
+              title: const Text('Scan Struk'),
+              subtitle: const Text('Isi otomatis dari foto struk'),
               onTap: () {
                 Navigator.pop(ctx); // close the sheet first
                 context.push('/inventory/scan-receipt');
@@ -26,7 +26,7 @@ class MainShell extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.edit_outlined),
-              title: const Text('Enter manually'),
+              title: const Text('Tambah manual'),
               onTap: () {
                 Navigator.pop(ctx);
                 context.push('/inventory/add');
@@ -73,11 +73,11 @@ class MainShell extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _navItem(context, 0, Icons.home_outlined, Icons.home, 'Home'),
-              _navItem(context, 1, Icons.inventory_2_outlined, Icons.inventory_2, 'Inventory'),
+              _navItem(context, 0, Icons.home_outlined, Icons.home, 'Beranda'),
+              _navItem(context, 1, Icons.inventory_2_outlined, Icons.inventory_2, 'Inventaris'),
               const SizedBox(width: 60), // gap for the FAB
-              _navItem(context, 2, Icons.receipt_long_outlined, Icons.receipt_long, 'Expenses'),
-              _navItem(context, 3, Icons.groups_outlined, Icons.groups, 'Household')
+              _navItem(context, 2, Icons.receipt_long_outlined, Icons.receipt_long, 'Pengeluaran'),
+              _navItem(context, 3, Icons.groups_outlined, Icons.groups, 'Rumah')
             ],
           ),
         ),

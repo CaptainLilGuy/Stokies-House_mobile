@@ -50,7 +50,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       final cats = await ApiService().getCategories();
       setState(() => _categories = cats);
     } catch (e) {
-      setState(() => _error = 'Failed to load categories.');
+      setState(() => _error = 'Gagal memuat kategori.');
     } finally {
       setState(() => _isLoadingCategories = false);
     }
@@ -75,12 +75,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   Future<void> _submit() async {
     if (_descCtrl.text.isEmpty) {
-      setState(() => _error = 'Description is required');
+      setState(() => _error = 'Deskripsi wajib diisi');
       return;
     }
     final amount = double.tryParse(_amountCtrl.text.trim());
     if (amount == null || amount <= 0) {
-      setState(() => _error = 'Enter a valid amount');
+      setState(() => _error = 'Masukkan jumlah yang valid');
       return;
     }
 
@@ -112,7 +112,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Expense'),
+        title: const Text('Catat Pengeluaran'),
         leading: IconButton(
           onPressed: () => context.go('/expenses'), 
           icon: const Icon(Icons.arrow_back))),
@@ -121,18 +121,18 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Description', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            const Text('Deskripsi', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             TextField(
               controller: _descCtrl,
               decoration: const InputDecoration(
-                hintText: 'e.g. Weekly groceries in Indomaret',
+                hintText: 'mis. Belanja mingguan di Indomaret',
                 border: OutlineInputBorder(),
               ),
             ),
             SizedBox(height: 20),
 
-            const Text('Amount', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            const Text('Jumlah', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             TextField(
               controller: _amountCtrl,
@@ -147,7 +147,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             ),
             const SizedBox(height: 20),
 
-            const Text('Date', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            const Text('Tanggal', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             InkWell(
               onTap: _pickDate,
@@ -168,14 +168,14 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             ),
             const SizedBox(height: 20),
 
-            const Text('Category (optional)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            const Text('Kategori (opsional)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
             const SizedBox(height: 8),
             _isLoadingCategories
               ? const LinearProgressIndicator()
               : DropdownButtonFormField<Category>(
                 initialValue: _selectedCategory,
                 isExpanded: true,
-                hint: const Text('None'),
+                hint: const Text('Tidak ada'),
                 decoration: const InputDecoration(border: OutlineInputBorder()),
                 items: _categories.map((cat) => DropdownMenuItem(value: cat, child:  Text(cat.name))).toList(),
                 onChanged: (val) => setState(() => _selectedCategory = val),
@@ -196,7 +196,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     width: 18, height: 18,
                     child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                   : const Icon(Icons.check),
-                label: Text(_isSubmitting ? 'Saving' : 'Save expense')),
+                label: Text(_isSubmitting ? 'Menyimpan' : 'Simpan pengeluaran')),
             ),
           ],
         ),

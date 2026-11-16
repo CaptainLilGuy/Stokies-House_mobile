@@ -46,11 +46,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 48),
-              Text('Create account',
+              Text('Buat akun',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              Text('Set up your household inventory',
+              Text('Atur inventaris rumah tanggamu',
               style: Theme.of(context)
                       .textTheme
                       .bodyMedium
@@ -60,7 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                TextField(
                 controller: _nameCtrl,
                 decoration: const InputDecoration(
-                  labelText: 'Full name',
+                  labelText: 'Nama pengguna',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.person_outline),
                 ),
@@ -82,7 +82,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 controller: _passCtrl,
                 obscureText: _obscure,
                 decoration: InputDecoration(
-                  labelText: 'Password',
+                  labelText: 'Kata sandi',
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
@@ -108,7 +108,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ? const SizedBox(
                           height: 20, width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Text('Create account'),
+                      : const Text('Daftar'),
                 ),
               ),
               const SizedBox(height: 16),
@@ -116,7 +116,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Center(
                 child: TextButton(
                   onPressed: () => context.go('/login'), 
-                  child: const Text('Already have an account? Login'),
+                  child: const Text('Sudah punya akun? Masuk'),
                   ),
               )
             ],

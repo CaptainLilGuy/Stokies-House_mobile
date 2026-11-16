@@ -41,12 +41,12 @@ class _LoginScreenState extends State<LoginScreen> {
            children: [
 
             const SizedBox(height: 48),
-            Text('Welcome Back',
+            Text('Selamat Datang Kembali',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold)),
             
             const SizedBox(height: 8),
-            Text('Log in to your household',
+            Text('Masuk ke rumah tanggamu',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey)),
             
             //email
@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
               controller: _userCtrl,
               keyboardType: TextInputType.text,
               decoration: const InputDecoration(
-                labelText: 'Username',
+                labelText: 'Nama pengguna',
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.person),
               ),
@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
               controller: _passCtrl,
               obscureText: _obscure,
               decoration: InputDecoration(
-                labelText: 'Password',
+                labelText: 'Kata sandi',
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
@@ -95,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ? const SizedBox(
                         height: 20, width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Text('Log in'),
+                      : const Text('Masuk'),
               ),
             ),
 
@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Center(
               child: TextButton(
                 onPressed: () => context.go('/register'),
-                child: const Text("Don't have an account? Register"),
+                child: const Text("Belum punya akun? Daftar"),
               )
             )
            ], 

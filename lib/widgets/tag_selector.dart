@@ -49,7 +49,7 @@ class _TagSelectorState extends State<TagSelector> {
       if (!mounted) return;
       setState(() {
         _loading = false;
-        _error = 'Failed to load tags';
+        _error = 'Gagal memuat tag';
       });
     }
   }
@@ -64,7 +64,7 @@ class _TagSelectorState extends State<TagSelector> {
 
   Future<void> _createTag() async {
     final name = await showTagNameDialog(context, 
-      title: 'New Tag', confirmLabel: 'Create');
+      title: 'Tag Baru', confirmLabel: 'Buat');
     if (name == null || !mounted) return;
 
     final existing = 
@@ -115,7 +115,7 @@ class _TagSelectorState extends State<TagSelector> {
               ),
             ActionChip(
               avatar: const Icon(Icons.add, size: 18),
-              label: const Text('New Tag'),
+              label: const Text('Tag Baru'),
               onPressed: _createTag,
             ),
           ],
@@ -125,7 +125,7 @@ class _TagSelectorState extends State<TagSelector> {
           child: TextButton.icon(
             onPressed: _manage, 
             icon: const Icon(Icons.sell_outlined, size: 18),
-            label: const Text('Manage Tags')),
+            label: const Text('Kelola Tag')),
         ),
       ],
     );

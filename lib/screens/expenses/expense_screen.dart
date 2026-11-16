@@ -38,13 +38,13 @@ class _ExpenseScreenState extends State<ExpenseScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Expense'),
+        title: const Text('Pengeluaran'),
         centerTitle: false,
         bottom: TabBar(
           controller: _tabs,
           tabs: const [
-            Tab(text: 'History'),
-            Tab(text: 'Summary'),
+            Tab(text: 'Riwayat'),
+            Tab(text: 'Ringkasan'),
           ],
         ),
       ),
@@ -59,7 +59,7 @@ class _ExpenseScreenState extends State<ExpenseScreen>
                   const SizedBox(height: 12),
                   FilledButton(
                     onPressed: () => context.read<ExpenseProvider>().fetchExpenses(), 
-                    child: const Text('Reply'),
+                    child: const Text('Coba lagi'),
                     ),
                   ],
                 ),
@@ -82,7 +82,7 @@ class _ExpenseScreenState extends State<ExpenseScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Total this month',
+                        Text('Total bulan ini',
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Theme.of(context).colorScheme.onPrimaryContainer)),
@@ -112,7 +112,7 @@ class _ExpenseScreenState extends State<ExpenseScreen>
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/inventory/add-expense'),
         icon: const Icon(Icons.add),
-        label: const Text('Log expense'),
+        label: const Text('Catat pengeluaran'),
         ),
       );
   }
@@ -164,7 +164,7 @@ class _HistoryTab extends StatelessWidget {
   Widget build(BuildContext context) {
     if (expenses.isEmpty) {
       return const Center(
-        child: Text('No expenses this month.', style: TextStyle(color: Colors.grey)),
+        child: Text('Belum ada pengeluaran bulan ini.', style: TextStyle(color: Colors.grey)),
       );
     }
 
@@ -187,7 +187,7 @@ class _HistoryTab extends StatelessWidget {
               title: Text(e.description, 
                   style: const TextStyle(fontWeight: FontWeight.w500)),
               subtitle: Text(
-                '${e.categoryName} . ${DateFormat('d MMM').format(e.date)}'
+                '${e.categoryName ?? 'Tanpa kategori'} · ${DateFormat('d MMM').format(e.date)}'
               ),
               trailing: Text(fmt.format(e.amount),
                   style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -211,7 +211,7 @@ class _SummaryTab extends StatelessWidget {
   Widget build(BuildContext context) {
     if (totals.isEmpty) {
       return const Center(
-        child: Text('No data yet', style: TextStyle(color: Colors.grey)),
+        child: Text('Belum ada data', style: TextStyle(color: Colors.grey)),
       );
     }
 
@@ -248,7 +248,7 @@ class _SummaryTab extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text('${(pct * 100).toStringAsFixed(1)}% of total',
+              Text('${(pct * 100).toStringAsFixed(1)}% dari total',
                   style: const TextStyle(fontSize: 11)),
             ],
           ),
@@ -260,26 +260,26 @@ class _SummaryTab extends StatelessWidget {
 
 IconData _categoryIcon(String? cat) {
   switch (cat) {
-    case 'Food' : return Icons.restaurant_outlined;
-    case 'Beverage' : return Icons.local_cafe_outlined;
-    case 'Transport' : return Icons.directions_car_outlined;
-    case 'Household' : return Icons.home_outlined;
-    case 'Health' : return Icons.favorite_outline;
-    case 'Personal Care' : return Icons.face_outlined;
-    case 'Entertainment' : return Icons.movie_outlined;
+    case 'Food': case 'Makanan': return Icons.restaurant_outlined;
+    case 'Beverage': case 'Minuman': return Icons.local_cafe_outlined;
+    case 'Transport': case 'Transportasi': return Icons.directions_car_outlined;
+    case 'Household': case 'Rumah Tangga': return Icons.home_outlined;
+    case 'Health': case 'Kesehatan': return Icons.favorite_outline;
+    case 'Personal Care': case 'Perawatan Pribadi': return Icons.face_outlined;
+    case 'Entertainment': case 'Hiburan': return Icons.movie_outlined;
     default: return Icons.receipt_outlined;
   }
 }
 
 Color _categoryColor(String? cat) {
   switch (cat) {
-    case 'Food' : return Colors.orange;
-    case 'Beverage' : return Colors.blue;
-    case 'Transport' : return Colors.indigo;
-    case 'Household' : return Colors.teal;
-    case 'Health' : return Colors.red;
-    case 'Personal Care' : return Colors.pink;
-    case 'Entertainment' : return Colors.purple;
+    case 'Food': case 'Makanan': return Colors.orange;
+    case 'Beverage': case 'Minuman': return Colors.blue;
+    case 'Transport': case 'Transportasi': return Colors.indigo;
+    case 'Household': case 'Rumah Tangga': return Colors.teal;
+    case 'Health': case 'Kesehatan': return Colors.red;
+    case 'Personal Care': case 'Perawatan Pribadi': return Colors.pink;
+    case 'Entertainment': case 'Hiburan': return Colors.purple;
   default: return Colors.grey;
   }
 }

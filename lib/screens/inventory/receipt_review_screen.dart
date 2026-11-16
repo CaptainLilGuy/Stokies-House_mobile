@@ -60,7 +60,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
       final cats = await ApiService().getCategories();
       setState(() => _categories = cats);
     } catch (e) {
-      setState(() => _error = 'Failed to loa categories');
+      setState(() => _error = 'Gagal memuat kategori');
     } finally {
       setState(() => _isLoadingCategories = false);
     }
@@ -129,7 +129,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
       final name = item.nameController.text.trim();
       if (name.isEmpty) continue;
       if (!item.treatAsRestock && item.selectedCategory == null) {
-        setState(() => _error = 'Please select a category for "$name".');
+        setState(() => _error = 'Pilih kategori untuk "$name".');
         return;
       }
     }
@@ -193,26 +193,26 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Review Receipt')),
+      appBar: AppBar(title: const Text('Tinjau Struk')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           if (widget.parsedData['layout_detected'] == 'unrecognized')
             _buildWarningBanner(
-              'This receipt format wasn\'t recognized — please check items carefully.',
+              'Format struk ini tidak dikenali — periksa setiap barang dengan teliti.',
             ),
-          const Text('Items', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const Text('Barang', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 8),
           ..._items.asMap().entries.map((entry) => _buildItemRow(entry.key, entry.value)),
           TextButton.icon(
             onPressed: _addBlankItem,
             icon: const Icon(Icons.add),
-            label: const Text('Add item manually'),
+            label: const Text('Tambah barang manual'),
           ),
           const Divider(height: 32),
           _buildSummaryField('Total', _totalController),
           const SizedBox(height: 12),
-          _buildDateField('Date', _dateController),
+          _buildDateField('Tanggal', _dateController),
           const SizedBox(height: 24),
 
           if (_error != null) 
@@ -226,7 +226,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
               ? const SizedBox(
                 width: 18, height: 20,
                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-              : const Text('Confirm'),
+              : const Text('Konfirmasi'),
           ),
         ],
       ),
@@ -277,7 +277,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
                 children: [
                   Icon(Icons.error_outline, size: 14, color: Colors.orange.shade800),
                   const SizedBox(width: 4),
-                  Text('Please double-check this item',
+                  Text('Mohon periksa ulang barang ini',
                       style: TextStyle(fontSize: 11, color: Colors.orange.shade800)),
                 ],
               ),
@@ -298,7 +298,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    'Looks like you already have "${item.matchedItemName}"',
+                    'Sepertinya kamu sudah punya "${item.matchedItemName}"',
                     style: TextStyle(fontSize: 12, color: Colors.blue.shade900),
                   ),
                 ),
@@ -319,7 +319,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
 
           TextField(
             controller: item.nameController,
-            decoration: const InputDecoration(labelText: 'Item name', isDense: true),
+            decoration: const InputDecoration(labelText: 'Nama barang', isDense: true),
             onTap: () => _markReviewed(index),
           ),
           const SizedBox(height: 8),
@@ -328,7 +328,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
               Expanded(
                 child: TextField(
                   controller: item.qtyController,
-                  decoration: const InputDecoration(labelText: 'Qty', isDense: true),
+                  decoration: const InputDecoration(labelText: 'Jml', isDense: true),
                   inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
                   ],
@@ -344,7 +344,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
                   ],
-                  decoration: const InputDecoration(labelText: 'Unit price', isDense: true),
+                  decoration: const InputDecoration(labelText: 'Harga satuan', isDense: true),
                   keyboardType: TextInputType.number,
                   onTap: () => _markReviewed(index)
                 ),
@@ -362,9 +362,9 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
               : DropdownButtonFormField(
                 initialValue: item.selectedCategory,
                 isExpanded: true,
-                hint: const Text('Select Category'),
+                hint: const Text('Pilih Kategori'),
                 decoration: const InputDecoration(
-                  labelText: 'Category',
+                  labelText: 'Kategori',
                   isDense: true,
                   border: OutlineInputBorder(),
                 ),
