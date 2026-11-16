@@ -39,6 +39,45 @@ class WasteItem {
   const WasteItem(this.name, this.unit, this.quantity, this.value);
 }
 
+class LowStockItem {
+  final String name, unit;
+  final double quantity, referenceQty;
+  final int percent;
+  final bool isOut;
+  final double? lastPrice;
+  const LowStockItem({required this.name, required this.unit, required this.quantity,
+      required this.referenceQty, required this.percent, required this.isOut, this.lastPrice});
+
+  factory LowStockItem.fromJson(Map<String, dynamic> j) => LowStockItem(
+        name: j['name'],
+        unit: j['unit'] ?? '',
+        quantity: (j['quantity'] as num).toDouble(),
+        referenceQty: (j['reference_qty'] as num).toDouble(),
+        percent: (j['percent'] as num).round(),
+        isOut: j['status'] == 'out',
+        lastPrice: (j['last_price'] as num?)?.toDouble(),
+      );
+}
+
+class UseFirstItem {
+  final String name, unit;
+  final double quantity;
+  final int daysLeft;
+  final DateTime expiryDate;
+  final double? value;
+  const UseFirstItem({required this.name, required this.unit, required this.quantity,
+      required this.daysLeft, required this.expiryDate, this.value});
+
+  factory UseFirstItem.fromJson(Map<String, dynamic> j) => UseFirstItem(
+        name: j['name'],
+        unit: j['unit'] ?? '',
+        quantity: (j['quantity'] as num).toDouble(),
+        daysLeft: j['days_left'] as int,
+        expiryDate: DateTime.parse(j['expiry_date']),
+        value: (j['value'] as num?)?.toDouble(),
+      );
+}
+
 /// Client-side v1: derives the cards from endpoints that already exist.
 /// When the aggregated GET /dashboard/ endpoint is built, replace fetch()
 /// and keep every getter below as the UI contract.
@@ -48,6 +87,8 @@ class DashboardProvider extends ChangeNotifier {
   static const paceMarginPoints = 15;
   static const warnFromDay = 7;
   static const unlockLogCount = 5;
+  static const lowStockPercent = 25;    // keep in sync with LOW_STOCK_RATIO
+  static const useFirstWindowDays = 14; // keep in sync with USE_FIRST_WINDOW_DAYS
 
   // static const _budgetKey = 'monthly_budget'; // interim: move to Household
   // final _storage = const FlutterSecureStorage();
@@ -58,6 +99,8 @@ class DashboardProvider extends ChangeNotifier {
 
   List<InventoryItem> expiring = [];
   List<Expense> monthExpenses = [];
+  List<LowStockItem> lowStock = [];
+  List<UseFirstItem> useFirst = [];
   double spent = 0;
   double? budget;
   int usageLogCount = 0;
@@ -210,8 +253,16 @@ class DashboardProvider extends ChangeNotifier {
           .map((j) => WasteItem(j['name'], j['unit'] ?? '',
               (j['quantity'] as num).toDouble(), (j['value'] as num).toDouble()))
           .toList();
+      lowStock = (d['low_stock'] as List? ?? [])
+          .map((j) => LowStockItem.fromJson(Map<String, dynamic>.from(j)))
+          .toList();
+      useFirst = (d['use_first'] as List? ?? [])
+          .map((j) => UseFirstItem.fromJson(Map<String, dynamic>.from(j)))
+          .toList();
     } catch (_) {
       priceChanges = [];
+      lowStock = [];
+      useFirst = [];
       wasteValue = 0; wasteLastValue = 0; wasteUnvalued = 0; wasteItems = [];
     }
   }
@@ -252,6 +303,7 @@ class DashboardProvider extends ChangeNotifier {
   expiring = []; monthExpenses = []; spent = 0; budget = null; isOwner = false;
   usageLogCount = 0; wastedThisMonth = 0; wastedLastMonth = 0; topUsed = [];
   priceChanges = []; wasteValue = 0; wasteLastValue = 0; wasteUnvalued = 0; wasteItems = [];
+  lowStock = []; useFirst = [];
   hasLoaded = false; notifyListeners();
   }
 }

@@ -239,6 +239,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     _patternCard(dp),
                     const SizedBox(height: 14),
                     _wasteCard(dp),
+                    const SizedBox(height: 14),
+                    _tipsCard(dp),
                     if (dp.hidden.isNotEmpty)
                       TextButton(
                           onPressed: dp.unhideAll,
@@ -677,6 +679,135 @@ Widget _priceCard(DashboardProvider dp) {
       ),
     );
   }
+
+  // ── card 6 ──────────────────────────────────────────────
+  Widget _tipsCard(DashboardProvider dp) {
+    const label = '6 · TIPS STOK';
+    if (dp.lowStock.isEmpty && dp.useFirst.isEmpty) {
+      return const _Card(
+        label: label,
+        child: _EmptyRow(
+          icon: Icons.check_circle_outline,
+          title: 'Stok aman',
+          body: 'Tidak ada barang yang menipis dan tidak ada yang perlu didahulukan.',
+        ),
+      );
+    }
+
+    Widget sub(String t) => Padding(
+          padding: const EdgeInsets.only(top: 4, bottom: 6),
+          child: Text(t, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
+        );
+
+    return _Card(
+      label: label,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (dp.useFirst.isNotEmpty) ...[
+            sub('Pakai duluan'),
+            for (final u in dp.useFirst)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(u.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                          Text('${_qty(u.quantity)} ${u.unit} · kedaluwarsa ${_short(u.expiryDate)}'
+                              '${u.value != null ? ' · ${_rp.format(u.value)}' : ''}',
+                              style: const TextStyle(fontSize: 13, color: _muted)),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                          color: _warnBg, borderRadius: BorderRadius.circular(999)),
+                      child: Text('${u.daysLeft} hari',
+                          style: const TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w600, color: _warnFg)),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+          if (dp.useFirst.isNotEmpty && dp.lowStock.isNotEmpty)
+            const Divider(height: 24, color: Color(0xFFEEEBE3)),
+          if (dp.lowStock.isNotEmpty) ...[
+            sub('Stok menipis'),
+            for (final s in dp.lowStock)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(s.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                          Text('Sisa ${_qty(s.quantity)} dari ${_qty(s.referenceQty)} ${s.unit}'
+                              '${s.lastPrice != null ? ' · terakhir ${_rp.format(s.lastPrice)}' : ''}',
+                              style: const TextStyle(fontSize: 13, color: _muted)),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                          color: s.isOut ? _dangerBg : _warnBg,
+                          borderRadius: BorderRadius.circular(999)),
+                      child: Text(s.isOut ? 'Habis' : 'Menipis',
+                          style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: s.isOut ? _dangerFg : _warnFg)),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+          _InfoLink('Lihat perhitungan', _explainTips),
+        ],
+      ),
+    );
+  }
+
+  void _explainTips() {
+    final dp = context.read<DashboardProvider>();
+    final rows = <MapEntry<String, String>>[
+      for (final u in dp.useFirst.take(3))
+        MapEntry(u.name, '${u.daysLeft} hari lagi'),
+      for (final s in dp.lowStock.take(3))
+        MapEntry(s.name, '${s.percent}% dari stok terakhir'),
+    ];
+    showExplanationSheet(
+      context,
+      ExplanationData(
+        title: 'Tips stok',
+        result: '${dp.useFirst.length} barang sebaiknya dipakai duluan, '
+            '${dp.lowStock.length} barang stoknya menipis atau habis.',
+        method:
+            'Pakai duluan: barang yang kedaluwarsa 4–${DashboardProvider.useFirstWindowDays} hari lagi '
+            '(yang ≤${DashboardProvider.expiryWindowDays} hari ada di kartu 1), diurutkan dari yang '
+            'paling cepat kedaluwarsa; bila sama, dari nilai tertinggi (jumlah × harga beli terakhir). '
+            'Stok menipis: sisa stok dibandingkan dengan jumlah stok setelah pembelian atau restock '
+            'terakhir. Sisa ≤${DashboardProvider.lowStockPercent}% ditandai Menipis; 0 ditandai Habis '
+            '(ditampilkan 30 hari setelah transaksi terakhir).',
+        rows: rows,
+        limitation:
+            'Bersifat deskriptif, bukan prediksi kapan stok habis. Ambang yang sama dipakai untuk '
+            'semua barang. Barang tanpa riwayat pembelian tidak dinilai, dan nilai hanya muncul bila '
+            'harga pernah dicatat.',
+        actions: [
+          SheetAction('Buka inventaris', () => context.go('/inventory'), primary: true),
+        ],
+      ),
+    );
+  }
+
   void _explainWaste(DashboardProvider dp) {
     showExplanationSheet(
       context,
