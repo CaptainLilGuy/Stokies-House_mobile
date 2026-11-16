@@ -21,8 +21,6 @@ Future<void> main() async {
   await initializeDateFormatting('id_ID');
   Intl.defaultLocale = 'id_ID';
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  Intl.defaultLocale = 'id.ID';
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const HomeventoryApp());
 }
 

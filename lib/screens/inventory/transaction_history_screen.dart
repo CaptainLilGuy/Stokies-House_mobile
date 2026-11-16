@@ -56,6 +56,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
     try {
       final data = await ApiService().getTransactionHistory(
           limit: _pageSize, offset: 0, changeType: _filter);
+      debugPrint('history count=${data['count']} results=${(data['results'] as List).length}');
       if (!mounted || gen != _gen) return;
       setState(() {
         _entries = _parse(data);
