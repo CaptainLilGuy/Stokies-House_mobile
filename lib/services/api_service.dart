@@ -96,6 +96,20 @@ Future<void> logUsage(int itemId, double qty,
   });
 }
 
+Future<Map<String, dynamic>> getTransactionHistory({
+  required int limit,
+  required int offset,
+  String? changeType,
+}) async {
+   final res = await _dio.get('/inventory/transactions/history/',
+      queryParameters: {
+        'limit': limit,
+        'offset': offset,
+        'change_type': ?changeType,
+      });
+  return Map<String, dynamic>.from(res.data);
+}
+
   // ─── INVENTORY ─────────────────────────────────────────
 
   Future<void> registerDeviceToken(String token) async {

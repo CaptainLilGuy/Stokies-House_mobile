@@ -50,6 +50,10 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
             tooltip: 'Manage tags',
             onPressed: () => context.push('/inventory/tags'), 
             icon: const Icon(Icons.sell_outlined)),
+          IconButton(
+            tooltip: 'Riwayat Transaksi',
+            onPressed: () => context.go('/inventory/history'), 
+            icon: const Icon(Icons.history)),
         ],
       ),
       body: Column(
