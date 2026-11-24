@@ -102,7 +102,7 @@ class _TransactionHistoryScreenState extends State<TransactionHistoryScreen> {
         title: const Text('Riwayat transaksi'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/inventory'),
+          onPressed: () => context.push('/inventory'),
         ),
         ),
       body: Column(
