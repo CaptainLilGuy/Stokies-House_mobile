@@ -44,15 +44,12 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
         centerTitle: false,
         actions: [
           IconButton(
-            onPressed: () => context.go('/household'), 
-            icon: const Icon(Icons.home_outlined)),
-          IconButton(
             tooltip: 'Kelola tag',
             onPressed: () => context.push('/inventory/tags'), 
             icon: const Icon(Icons.sell_outlined)),
           IconButton(
             tooltip: 'Riwayat Transaksi',
-            onPressed: () => context.go('/inventory/history'), 
+            onPressed: () => context.push('/inventory/history'), 
             icon: const Icon(Icons.history)),
         ],
       ),
